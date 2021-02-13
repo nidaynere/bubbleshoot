@@ -8,37 +8,38 @@ namespace Bob
         private BubbleGrid map;
         private ushort idCounter;
 
-        private Bubble activeBall;
-        private Bubble nextBall;
+        private Bubble activeBubble;
+        private Bubble nextBubble;
 
         public BubbleGame(int gridSizeX, int gridSizeY)
         {
             #region define
             map = new BubbleGrid(new Vector (gridSizeX, gridSizeY));
             idCounter = 0;
-            activeBall = null;
-            nextBall = null;
+            activeBubble = null;
+            nextBubble = null;
             GameEvents = new BubbleEvents();
             #endregion
 
             GameEvents.OnPutBubble += PutBubble;
+            GameEvents.OnCheckForMatch += CheckForMatch;
         }
 
         public void NextTurn()
         {
-            if (activeBall == null)
+            if (activeBubble == null)
             {
-                activeBall = CreateBubble(ref idCounter);
-                GameEvents.OnActiveBallCreated?.Invoke(activeBall);
+                activeBubble = CreateBubble(ref idCounter);
+                GameEvents.OnActiveBallCreated?.Invoke(activeBubble);
             }
             else
             {
-                activeBall = nextBall;
+                activeBubble = nextBubble;
                 GameEvents.OnNextBallBecomeActive?.Invoke();
             }
 
-            nextBall = CreateBubble(ref idCounter);
-            GameEvents.OnNextBallSpawned?.Invoke(nextBall);
+            nextBubble = CreateBubble(ref idCounter);
+            GameEvents.OnNextBallSpawned?.Invoke(nextBubble);
         }
 
         /// <summary>
@@ -82,9 +83,23 @@ namespace Bob
         /// </summary>
         /// <param name="X"></param>
         /// <param name="Y"></param>
-        private void PutBubble(int X, int Y)
+        private bool PutBubble(int X, int Y)
         {
-            //map.SetToPosition ()
+            Vector position = new Vector(X, Y);
+
+            if (!map.IsPositionAvailable(position))
+            {
+                return false;
+            }
+
+            map.AddToPosition(activeBubble, position);
+
+            return true;
+        }
+
+        private void CheckForMatch(int X, int Y)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

@@ -9,10 +9,7 @@ public class AimArrow : MonoBehaviour
 
     [SerializeField] private List<Collider> walls;
 
-    const int maxCrosses = 5;
-    private Vector3[] positions = new Vector3[maxCrosses+2]; // 2 means start & end position
-
-    public void SetDirection (Vector2 direction)
+    public int SetDirection (Vector2 direction, int maxCrosses, Vector3[] positions)
     {
         float rayLength = 10f;
         var normalize = direction.normalized;
@@ -55,6 +52,8 @@ public class AimArrow : MonoBehaviour
 
         lineRenderer.positionCount = crosses + 1;
         lineRenderer.SetPositions(positions);
+
+        return crosses;
     }
 
     public void SetVisual (bool value)

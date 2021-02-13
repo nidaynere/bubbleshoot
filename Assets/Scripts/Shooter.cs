@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Linq;
 
 public class Shooter : MonoBehaviour
 {
     #region events
-    public delegate void ShootEvent(Vector2 direction);
+    public delegate void ShootEvent(Vector3[] positions);
     private ShootEvent OnShoot;
+
     public void RegisterShootEvent(ShootEvent shootEvent)
     {
         OnShoot += shootEvent;
@@ -24,6 +25,10 @@ public class Shooter : MonoBehaviour
     /// </summary>
     [SerializeField] private Transform focusPoint;
     #endregion
+
+    const int maxCrosses = 5;
+    private Vector3[] positions = new Vector3[maxCrosses + 2]; // 2 means start & end position
+    private int positionCount;
 
     private MouseInput mouseInput;
     
@@ -48,7 +53,7 @@ public class Shooter : MonoBehaviour
     {
         Debug.Log("[Shooter] OnInputHoldAndMove, position => " + position);
 
-        aimArrow.SetDirection(getAimDirection(ref position));
+        positionCount = aimArrow.SetDirection(getAimDirection(ref position), maxCrosses, positions);
     }
 
     private void OnInputDown(Vector2 position)
@@ -64,6 +69,7 @@ public class Shooter : MonoBehaviour
         Debug.Log("[Shooter] OnInputUp, position => " + position);
 
         aimArrow.SetVisual(false);
-        OnShoot?.Invoke(getAimDirection (ref position));
+
+        OnShoot?.Invoke(positions.Take (positionCount).ToArray ());
     }
 }

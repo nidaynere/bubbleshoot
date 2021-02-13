@@ -115,6 +115,16 @@ namespace Bob
             return grid[position.Y][position.X];
         }
 
+        public bool IsPositionAvailable (Vector position)
+        {
+            if (position.Y < 0 || position.Y >= Size.Y)
+                return false;
+            if (position.X < 0 || position.X >= Size.X)
+                return false;
+
+            return GetFromPosition(position) == null;
+        }
+
         public void AddToPosition(Bubble bubble, Vector position)
         {
             if (grid[position.Y][position.X] != null)
@@ -128,7 +138,7 @@ namespace Bob
             OutputLog.AddLog("[Grid] Bubble added to position => " + position);
         }
 
-        public void SlideMap(int step = 1)
+        public void SlideMap (int step = 1)
         {
             for (int y = Size.Y - step -1 ; y >= 0; y--)
             {

@@ -21,12 +21,16 @@ namespace Bob
         public BubbleIsNowFree OnBubbleIsNowFree;
         public ActiveBallCreated OnActiveBallCreated;
         public NextBallBecomeActive OnNextBallBecomeActive;
+        public ActiveBallCreated OnActiveBallPlaced;
         public NextBallSpawned OnNextBallSpawned;
         #endregion
 
         #region inputs
-        public delegate void PutBubble(int X, int Y);
+        public delegate bool PutBubble(int X, int Y);
+        public delegate void CheckForMatch(int X, int Y);
+
         public PutBubble OnPutBubble;
+        public CheckForMatch OnCheckForMatch;
         #endregion
     }
 }

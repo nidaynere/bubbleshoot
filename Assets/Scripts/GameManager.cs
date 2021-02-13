@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Bob;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,10 +12,20 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] Transform activeBallPoint, nextBallPoint;
 
+    private GameBall activeBall, nextBall;
+
     private Pool pool;
+
     public void Start()
     {
         pool = new Pool(holder, gameBall, poolSize);
+
+        shooter.RegisterShootEvent(UserShoot);
+    }
+
+    private void UserShoot(Vector3[] positions)
+    {
+        
     }
 
     private BubbleGame currentSession;
@@ -54,7 +65,7 @@ public class GameManager : MonoBehaviour
         SpawnBall(bubble, X, Y + (X%2) * 0.1f, 0.8f);
     }
 
-    private void SpawnBall(Bubble bubble, float X, float Y, float scale = 1)
+    private GameBall SpawnBall(Bubble bubble, float X, float Y, float scale = 1)
     {
         var gameBall = pool.Get();
         gameBall.transform.localPosition = new Vector3(X, -Y, 0);
@@ -62,6 +73,8 @@ public class GameManager : MonoBehaviour
         gameBall.bubble = bubble;
 
         gameBall.gameObject.SetActive(true);
+
+        return gameBall;
     }
 
     private void BubbleDestroyed (ushort Id)
