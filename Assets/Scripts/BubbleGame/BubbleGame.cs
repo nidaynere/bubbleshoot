@@ -1,23 +1,44 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
 
 namespace Bob
 {
     public struct BubbleGame
     {
         public BubbleEvents GameEvents;
-
-        private Grid map;
-
+        private BubbleGrid map;
         private ushort idCounter;
+
+        private Bubble activeBall;
+        private Bubble nextBall;
 
         public BubbleGame(int gridSizeX, int gridSizeY)
         {
-            map = new Grid(new Vector (gridSizeX, gridSizeY));
+            #region define
+            map = new BubbleGrid(new Vector (gridSizeX, gridSizeY));
             idCounter = 0;
-
+            activeBall = null;
+            nextBall = null;
             GameEvents = new BubbleEvents();
-            GameEvents.OnSetBubblePosition += SetBubblePosition;
+            #endregion
+
+            GameEvents.OnPutBubble += PutBubble;
+        }
+
+        public void NextTurn()
+        {
+            if (activeBall == null)
+            {
+                activeBall = CreateBubble(ref idCounter);
+                GameEvents.OnActiveBallCreated?.Invoke(activeBall);
+            }
+            else
+            {
+                activeBall = nextBall;
+                GameEvents.OnNextBallBecomeActive?.Invoke();
+            }
+
+            nextBall = CreateBubble(ref idCounter);
+            GameEvents.OnNextBallSpawned?.Invoke(nextBall);
         }
 
         /// <summary>
@@ -41,7 +62,7 @@ namespace Bob
                     int randomizer = rand.Next(0, 100);
                     if (randomizer <= fillChance)
                     {
-                        bubbles[x] = CreateBubble();
+                        bubbles[x] = CreateBubble(ref idCounter);
                     }
                 }
             }
@@ -49,15 +70,20 @@ namespace Bob
             map.AddBubbles(bubbles);
         }
 
-        private Bubble CreateBubble ()
+        private Bubble CreateBubble (ref ushort counter)
         {
-            var bubble = new Bubble(++idCounter);
+            var bubble = new Bubble(++counter);
             return bubble;
         }
 
-        private void SetBubblePosition(int Index, int X, int Y)
+        /// <summary>
+        /// put active ball to a position and let the grid run the algorithm.
+        /// </summary>
+        /// <param name="X"></param>
+        /// <param name="Y"></param>
+        private void PutBubble(int X, int Y)
         {
-            
+            //map.SetToPosition ()
         }
     }
 }
