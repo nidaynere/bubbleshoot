@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] int poolSize;
     [SerializeField] Shooter shooter;
     [SerializeField] int width, height;
-    [SerializeField] InputEvents inputEvents;
+    [SerializeField] GamePlayEvents GamePlayEvents;
     [SerializeField] GameSettings gameSettings;
 
     [SerializeField] Transform activeBallPoint, nextBallPoint;
@@ -55,13 +55,11 @@ public class GameManager : MonoBehaviour
         if (length == 0)
             return;
 
-        inputEvents.OnGameplayStatusChange?.Invoke(false);
+        GamePlayEvents.OnGameplayStatusChange?.Invoke(false);
 
         var lastPosition = positions[length - 1];
 
         activeBall.Move(positions, gameSettings.BubbleThrowSpeed, () => {
-            inputEvents.OnGameplayStatusChange?.Invoke(true);
-
             lastPosition = holder.InverseTransformPoint(lastPosition);
             lastPosition.y *= -1;
             
@@ -77,12 +75,12 @@ public class GameManager : MonoBehaviour
 
                 activeBall.Move(activeBallPoint.position, gameSettings.BubbleThrowSpeed, () =>
                 {
-                    inputEvents.OnGameplayStatusChange?.Invoke(true);
+                    GamePlayEvents.OnGameplayStatusChange?.Invoke(true);
                 });
             }
             else
             {
-                inputEvents.OnGameplayStatusChange?.Invoke(true);
+                GamePlayEvents.OnGameplayStatusChange?.Invoke(true);
                 Debug.Log("next round !!");
             }
         });
@@ -95,7 +93,8 @@ public class GameManager : MonoBehaviour
 
         // Register outputs to the game.
         currentSession.GameEvents.OnActiveBallCreated += ActiveBallCreated;
-        currentSession.GameEvents.OnBubbleDestroyed += BubbleDestroyed;
+        currentSession.GameEvents.OnBubbleCombined += BubbleCombined;
+        currentSession.GameEvents.OnBubbleMixed += BubbleMixed;
         currentSession.GameEvents.OnBubbleIsNowFree += BubbleIsNowFree;
         currentSession.GameEvents.OnBubblePositionUpdate += BubblePositionUpdate;
         currentSession.GameEvents.OnBubbleSpawned += BubbleSpawned;
@@ -107,7 +106,7 @@ public class GameManager : MonoBehaviour
         currentSession.CreateRows(2, 40);
         currentSession.NextTurn();
 
-        inputEvents.OnGameplayStatusChange?.Invoke(true);
+        GamePlayEvents.OnGameplayStatusChange?.Invoke(true);
     }
 
     private void ActiveBallCreated (Bubble bubble)
@@ -145,14 +144,14 @@ public class GameManager : MonoBehaviour
         return gameBall;
     }
 
-    private void BubbleDestroyed (ushort Id)
+    private void BubbleCombined (ushort Id, ushort tId)
     {
-        if (spawneds.ContainsKey(Id))
-        {
-            spawneds.Remove(Id);
-        }
+        Debug.Log("Bubble {"+ Id +"} combined with Id => " +Id);
+    }
 
-        Debug.Log("Bubble destroyed with Id => " +Id);
+    private void BubbleMixed(ushort Id, ushort tId)
+    {
+        Debug.Log("Bubble {" + Id + "} mixed with Id => " + Id);
     }
 
     private void BubbleIsNowFree (ushort Id)
@@ -185,6 +184,8 @@ public class GameManager : MonoBehaviour
     private void NextBallBecomeActive ()
     {
         activeBall = nextBall;
+        activeBall.Move(activeBallPoint.position, gameSettings.PositionUpdateSpeed);
+
         Debug.Log("Next ball become active!");
     }
 }

@@ -19,20 +19,21 @@ public class GameBall : Transition
         set
         {
             _bubble = value;
-            text.text = _bubble.Numberos.ToString().Replace ("_","");
+            Upgrade();
             meshRenderer.sharedMaterial = ballColors.Materials[(int)_bubble.Numberos];
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
+    public void Kill()
     {
-        
+        //TODO anim.
+        gameObject.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Upgrade()
     {
-        
+        text.text = _bubble.Numberos.ToString().Replace("_", "");
+
+        // TODO animation.
     }
 }

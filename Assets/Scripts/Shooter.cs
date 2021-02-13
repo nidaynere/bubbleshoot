@@ -23,7 +23,7 @@ public class Shooter : MonoBehaviour
     /// Focus point will be 3D object, we will get the screenpos of it.
     /// </summary>
     [SerializeField] private Transform focusPoint;
-    [SerializeField] private InputEvents inputEvents;
+    [SerializeField] private GamePlayEvents inputEvents;
     #endregion
 
     const int maxCrosses = 5;

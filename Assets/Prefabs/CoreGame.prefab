@@ -289,7 +289,7 @@ MonoBehaviour:
   shooter: {fileID: 7883913366511982377}
   width: 6
   height: 4
-  inputEvents: {fileID: 11400000, guid: fdd2dc90e8207ff41be47a02868202d1, type: 2}
+  GamePlayEvents: {fileID: 11400000, guid: fdd2dc90e8207ff41be47a02868202d1, type: 2}
   gameSettings: {fileID: 11400000, guid: a83af7336ad93a44cafe37345ee10404, type: 2}
   activeBallPoint: {fileID: 1234854169}
   nextBallPoint: {fileID: 116916650}
