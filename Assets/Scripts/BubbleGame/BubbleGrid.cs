@@ -130,7 +130,7 @@ namespace Bob
 
         public void SlideMap(int step = 1)
         {
-            for (int y = Size.Y - step; y >= 0; y--)
+            for (int y = Size.Y - step -1 ; y >= 0; y--)
             {
                 for (int x = 0; x < Size.X; x++)
                 {

@@ -7,7 +7,6 @@ public class AimArrow : MonoBehaviour
     [SerializeField] private Animator aimAnimator;
     [SerializeField] private Transform focusPoint;
 
-    [SerializeField] private float rayLength;
     [SerializeField] private List<Collider> walls;
 
     const int maxCrosses = 5;
@@ -15,6 +14,7 @@ public class AimArrow : MonoBehaviour
 
     public void SetDirection (Vector2 direction)
     {
+        float rayLength = 10f;
         var normalize = direction.normalized;
         var dir = new Vector3(normalize.x, normalize.y, 0);
 
@@ -22,7 +22,6 @@ public class AimArrow : MonoBehaviour
 
         int crosses = 0;
         positions[crosses] = startPosition;
-
         while (true && crosses < maxCrosses)
         {
             RaycastHit rh;
@@ -36,12 +35,23 @@ public class AimArrow : MonoBehaviour
                     dir = Vector3.Reflect(dir, rh.normal);
                     positions[crosses] = startPosition;
                 }
-                else break;
+                else
+                {
+                    rayLength = rh.distance;
+                    break;
+                }
             }
-            else break;
+            else
+            {
+                break;
+            }
         }
 
-        positions[crosses+1] = startPosition + dir * rayLength;
+        if (crosses < maxCrosses)
+        {
+            crosses++;
+            positions[crosses] = startPosition + dir * rayLength;
+        }
 
         lineRenderer.positionCount = crosses + 1;
         lineRenderer.SetPositions(positions);

@@ -56,13 +56,14 @@ namespace Bob
 
             for (int i = 0; i < count; i++)
             {
-                for (int x = 0; x < mapSizeX; i++)
+                for (int x = 0; x < mapSizeX; x++)
                 {
-                    var rand = new Random();
-                    int randomizer = rand.Next(0, 100);
+                    var rand = new Random(i * x);
+                    var randomizer = rand.NextDouble()* 100f;
                     if (randomizer <= fillChance)
                     {
                         bubbles[x] = CreateBubble(ref idCounter);
+                        GameEvents.OnBubbleSpawned?.Invoke(bubbles[x], x, i);
                     }
                 }
             }

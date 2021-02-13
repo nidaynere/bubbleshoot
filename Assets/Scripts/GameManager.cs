@@ -7,17 +7,20 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameBall gameBall;
     [SerializeField] int poolSize;
     [SerializeField] Shooter shooter;
+    [SerializeField] int width, height;
+
+    [SerializeField] Transform activeBallPoint, nextBallPoint;
 
     private Pool pool;
     public void Start()
     {
-        pool = new Pool(holder, gameBall, 100);
+        pool = new Pool(holder, gameBall, poolSize);
     }
 
     private BubbleGame currentSession;
     public void CreateGame()
     {
-        currentSession = new BubbleGame(12, 8);
+        currentSession = new BubbleGame(width, height);
 
         // Register outputs to the game.
         currentSession.GameEvents.OnActiveBallCreated += ActiveBallCreated;
@@ -30,17 +33,35 @@ public class GameManager : MonoBehaviour
         currentSession.GameEvents.OnNextBallBecomeActive += NextBallBecomeActive;
         //
 
+        currentSession.CreateRows(3, 80);
         currentSession.NextTurn();
     }
 
     private void ActiveBallCreated (Bubble bubble)
     {
         Debug.Log("Active ball created => " + bubble.Id + " " + bubble.Numberos);
+        var pos = activeBallPoint.localPosition;
+        int X = (int)pos.x;
+        int Y = -(int)pos.y;
+
+        SpawnBall(bubble, X, Y, 1);
     }
 
     private void BubbleSpawned (Bubble bubble, int X, int Y)
     {
         Debug.Log("Bubble spawned => " + bubble.Id + " at " + X + "," + Y);
+
+        SpawnBall(bubble, X, Y, 1);
+    }
+
+    private void SpawnBall(Bubble bubble, int X, int Y, float scale = 1)
+    {
+        var gameBall = pool.Get();
+        gameBall.transform.localPosition = new Vector3(X, -Y, 0);
+        gameBall.transform.localScale = Vector3.one * scale;
+        gameBall.bubble = bubble;
+
+        gameBall.gameObject.SetActive(true);
     }
 
     private void BubbleDestroyed (ushort Id)
@@ -65,7 +86,11 @@ public class GameManager : MonoBehaviour
 
     private void NextBallSpawned (Bubble bubble)
     {
-        Debug.Log("Next ball spawned => " + bubble.Id +" " + bubble.Numberos);
+        Debug.Log("Next ball spawned => " + bubble.Id + " " + bubble.Numberos);
+        var pos = nextBallPoint.localPosition;
+        int X = (int)pos.x;
+        int Y = -(int)pos.y;
+        SpawnBall (bubble, X, Y, 0.5f);
     }
 
     private void NextBallBecomeActive ()

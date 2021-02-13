@@ -10,6 +10,7 @@ public class Pool
         for (int i = 0; i < poolSize; i++)
         {
             poolObjects[i] = Object.Instantiate(poolObject, holder);
+            poolObjects[i].gameObject.SetActive(false);
         }
     }
 
