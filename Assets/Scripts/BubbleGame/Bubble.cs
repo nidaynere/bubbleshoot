@@ -22,7 +22,7 @@ namespace Bob
 
         public Bubble(ushort _Id)
         {
-            int m = new Random().Next(0, (int)BubbleType.Max - 1);
+            int m = Random.Range (0, (int)BubbleType.Max - 1);
             Numberos = (BubbleType)m;
             Id = _Id;
         }

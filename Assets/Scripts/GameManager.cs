@@ -82,6 +82,9 @@ public class GameManager : MonoBehaviour
             {
                 GamePlayEvents.OnGameplayStatusChange?.Invoke(true);
                 Debug.Log("next round !!");
+                
+                //currentSession.CreateRows(1, 80, false);
+                currentSession.NextTurn();
             }
         });
     }
@@ -103,7 +106,7 @@ public class GameManager : MonoBehaviour
         currentSession.GameEvents.OnNextBallBecomeActive += NextBallBecomeActive;
         //
 
-        currentSession.CreateRows(2, 40);
+        currentSession.CreateRows(2, 40, true);
         currentSession.NextTurn();
 
         GamePlayEvents.OnGameplayStatusChange?.Invoke(true);
@@ -124,8 +127,6 @@ public class GameManager : MonoBehaviour
 
     private void BubbleSpawned (Bubble bubble, int X, int Y)
     {
-        Debug.Log("Bubble spawned => " + bubble.Id + " at " + X + "," + Y);
-
         var pos = getGridPosition(X, Y);
         SpawnBall(bubble, pos, 0.8f);
     }
@@ -159,11 +160,17 @@ public class GameManager : MonoBehaviour
         Debug.Log("Bubble is now free, fly away => " + Id);
     } 
 
-    private void BubblePositionUpdate (ushort Id, int X, int Y)
+    private void BubblePositionUpdate (ushort Id, int X, int Y, bool IsInstant)
     {
         if (spawneds.ContainsKey(Id))
         {
-            spawneds[Id].Move(holder.TransformPoint (getGridPosition(X, Y)), gameSettings.PositionUpdateSpeed);
+            var targetPosition = holder.TransformPoint(getGridPosition(X, Y));
+            
+            if (IsInstant)
+                spawneds[Id].transform.position = targetPosition;
+            else
+            
+            spawneds[Id].Move(targetPosition, gameSettings.PositionUpdateSpeed);
         }
 
         Debug.Log("Bubble position update => " + Id + " X="+ X + " Y=" + Y);
@@ -185,6 +192,7 @@ public class GameManager : MonoBehaviour
     {
         activeBall = nextBall;
         activeBall.Move(activeBallPoint.position, gameSettings.PositionUpdateSpeed);
+        activeBall.Scale(Vector3.one * 0.8f);
 
         Debug.Log("Next ball become active!");
     }

@@ -13,7 +13,7 @@ public class Transition : MonoBehaviour
         if (currentTransition != null)
             StopCoroutine(currentTransition);
 
-        currentTransition = StartCoroutine(startTransition(target, speed, onCompleted, true));
+        StartCoroutine(startTransition(target, speed, onCompleted, true));
     }
 
     public void Move(Vector3[] target, float speed, Action onCompleted = null)
@@ -23,7 +23,12 @@ public class Transition : MonoBehaviour
         if (currentTransition != null)
             StopCoroutine(currentTransition);
 
-        currentTransition = StartCoroutine(startTransition(target, speed, onCompleted));
+        StartCoroutine(startTransition(target, speed, onCompleted));
+    }
+
+    public void Scale (Vector3 target)
+    {
+        StartCoroutine(startScaling(target));
     }
 
     private IEnumerator startTransition(Vector3[] target, float speed, Action onCompleted)
@@ -80,6 +85,27 @@ public class Transition : MonoBehaviour
             if (progress == 1)
             {
                 onCompleted?.Invoke();
+                break;
+            }
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    private IEnumerator startScaling (Vector3 target)
+    {
+        Vector3 startScale = transform.localScale;
+        float progress = 0;
+        float progressSpeed = gameSettings.ScaleUpdateSpeed / (Vector3.Distance(target, startScale) + 0.001f);
+
+        while (true)
+        {
+            progress = Mathf.Min(progress + progressSpeed * Time.deltaTime, 1);
+
+            transform.localScale = Vector3.Lerp(startScale, target,
+                gameSettings.ScaleCurve.Evaluate(progress));
+
+            if (progress == 1)
+            {
                 break;
             }
             yield return new WaitForEndOfFrame();

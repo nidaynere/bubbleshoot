@@ -52,13 +52,15 @@ namespace Bob
         /// </summary>
         /// <param name="count"></param>
         /// <param name="fillChance">Fill chance should be between 0 and 100. 100 Means always create points inside row.</param>
-        public void CreateRows(int count, int fillChance)
+        public void CreateRows(int count, int fillChance, bool isInstant)
         {
             count = Math.Min(count, map.Size.Y);
 
-            OutputLog.AddLog(count.ToString ());
-
             int mapSizeX = map.Size.X;
+
+            // update bubbles at index 1;
+            Bubble[] f_bubbles = new Bubble[mapSizeX];
+            Vector[] f_positions = new Vector[mapSizeX];
 
             for (int i = 0; i < count; i++)
             {
@@ -66,9 +68,9 @@ namespace Bob
 
                 for (int x = 0; x < mapSizeX; x++)
                 {
-                    //var rand = new Random(i * x);
-                    //var randomizer = rand.NextDouble()* 100f;
-                    //if (randomizer <= fillChance)
+                    var randomizer = Random.Range(0, 100);
+
+                    if (randomizer <= fillChance)
                     {
                         bubbles[x] = CreateBubble(ref idCounter);
                         GameEvents.OnBubbleSpawned?.Invoke(bubbles[x], x, 0);
@@ -77,16 +79,13 @@ namespace Bob
 
                 map.AddBubbles(bubbles);
 
-                // update bubbles at index 1;
-                Bubble[] f_bubbles;
-                Vector[] f_positions;
-                int f_count = map.GetBubblesAtRow(1, out f_bubbles, out f_positions);
-
+                int f_count = map.GetBubblesAtRow(1, mapSizeX, ref f_bubbles, ref f_positions);
+                OutputLog.AddLog(f_count.ToString());
                 for (int f = 0; f < f_count; f++)
                 {
-                    GameEvents.OnBubblePositionUpdate ?.Invoke(f_bubbles[f].Id, f_positions[f].X, f_positions[f].Y);
+                    OutputLog.AddLog(f_bubbles[f].Id + " " + f_positions[f]);
+                    GameEvents.OnBubblePositionUpdate?.Invoke(f_bubbles[f].Id, f_positions[f].X, f_positions[f].Y, isInstant);
                 }
-                //
             }
         }
 
@@ -123,7 +122,7 @@ namespace Bob
 
         private void CheckForMatch(int X, int Y)
         {
-            GameEvents.OnBubblePositionUpdate?.Invoke (activeBubble.Id, X, Y);
+            GameEvents.OnBubblePositionUpdate?.Invoke (activeBubble.Id, X, Y, false);
 
             map.SeekForCombine(new Vector(X, Y));
             //throw new System.NotImplementedException();

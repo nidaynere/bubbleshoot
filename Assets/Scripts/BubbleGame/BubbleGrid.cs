@@ -200,24 +200,21 @@ namespace Bob
         /// <param name="bubbles"></param>
         /// <param name="positions"></param>
         /// <returns></returns>
-        public int GetBubblesAtRow (int rowIndex, out Bubble[] bubbles, out Vector[] positions)
+        public int GetBubblesAtRow (int rowIndex, int xLength, ref Bubble[] bubbles, ref Vector[] positions)
         {
             if (rowIndex >= Size.Y)
                 rowIndex = Size.Y - 1;
 
-            var c = Size.X;
-
-            bubbles = new Bubble[c];
-            positions = new Vector[c];
-
             int counter = 0;
 
-            for (int x = 0; x < c; x++)
+            for (int x = 0; x < xLength; x++)
             {
                 if (grid[rowIndex][x] != null)
                 {
-                    bubbles[x] = grid[rowIndex][x];
-                    positions[x] = new Vector(x, rowIndex);
+                    OutputLog.AddLog(counter.ToString());
+
+                    bubbles[counter] = grid[rowIndex][x];
+                    positions[counter] = new Vector(x, rowIndex);
                     counter++;
                 }
             }
