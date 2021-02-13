@@ -4,4 +4,5 @@
 public class GameSettings : ScriptableObject
 {
     public AnimationCurve TransitionCurve;
+    public float BubbleThrowSpeed = 10f;
 }

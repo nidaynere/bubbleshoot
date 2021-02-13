@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Bob;
 using UnityEngine.UI;
 
-public class GameBall : MonoBehaviour
+public class GameBall : Transition
 {
     [SerializeField] private BallColors ballColors;
     [SerializeField] private MeshRenderer meshRenderer;

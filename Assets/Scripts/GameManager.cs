@@ -9,6 +9,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] int poolSize;
     [SerializeField] Shooter shooter;
     [SerializeField] int width, height;
+    [SerializeField] InputEvents inputEvents;
+    [SerializeField] GameSettings gameSettings;
 
     [SerializeField] Transform activeBallPoint, nextBallPoint;
 
@@ -22,10 +24,20 @@ public class GameManager : MonoBehaviour
 
         shooter.RegisterShootEvent(UserShoot);
     }
-
     private void UserShoot(Vector3[] positions)
     {
-        
+        inputEvents.OnGameplayStatusChange?.Invoke(false);
+
+        int length = positions.Length;
+        if (length == 0)
+            return;
+
+        Vector3 lastPosition = positions[length-1];
+
+        activeBall.Move(positions, gameSettings.BubbleThrowSpeed, () => {
+            Debug.Log("transition completed");
+            inputEvents.OnGameplayStatusChange?.Invoke(true);
+        });
     }
 
     private BubbleGame currentSession;
@@ -44,8 +56,10 @@ public class GameManager : MonoBehaviour
         currentSession.GameEvents.OnNextBallBecomeActive += NextBallBecomeActive;
         //
 
-        currentSession.CreateRows(3, 80);
+        currentSession.CreateRows(2, 40);
         currentSession.NextTurn();
+
+        inputEvents.OnGameplayStatusChange?.Invoke(true);
     }
 
     private void ActiveBallCreated (Bubble bubble)
@@ -55,7 +69,7 @@ public class GameManager : MonoBehaviour
         int X = (int)pos.x;
         int Y = -(int)pos.y;
 
-        SpawnBall(bubble, X, Y, 0.8f);
+        activeBall = SpawnBall(bubble, X, Y, 0.8f);
     }
 
     private void BubbleSpawned (Bubble bubble, int X, int Y)
@@ -103,11 +117,12 @@ public class GameManager : MonoBehaviour
         var pos = nextBallPoint.localPosition;
         int X = (int)pos.x;
         int Y = -(int)pos.y;
-        SpawnBall (bubble, X, Y, 0.5f);
+        nextBall = SpawnBall (bubble, X, Y, 0.5f);
     }
 
     private void NextBallBecomeActive ()
     {
+        activeBall = nextBall;
         Debug.Log("Next ball become active!");
     }
 }

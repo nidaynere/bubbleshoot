@@ -19,27 +19,40 @@ public class Shooter : MonoBehaviour
 
     #region serialized variables
     [SerializeField] private AimArrow aimArrow;
-
     /// <summary>
     /// Focus point will be 3D object, we will get the screenpos of it.
     /// </summary>
     [SerializeField] private Transform focusPoint;
+    [SerializeField] private InputEvents inputEvents;
     #endregion
 
     const int maxCrosses = 5;
     private Vector3[] positions = new Vector3[maxCrosses + 2]; // 2 means start & end position
     private int positionCount;
 
+    private bool inputEnabled = false;
     private MouseInput mouseInput;
+
+    private bool inputActive;
     
     void Start()
     {
         mouseInput = new MouseInput();
         mouseInput.RegisterInput(OnInputHoldAndMove, OnInputDown, OnInputUp);
+
+        inputEvents.OnGameplayStatusChange += (value) => {
+            inputEnabled = value;
+
+            if (!value && inputActive)
+            {
+                OnInputUp (Vector2.zero);
+            }
+        };
     }
 
     private void Update()
     {
+        if (inputEnabled)
         mouseInput.Update(); // keep input listener in loop
     }
 
@@ -59,6 +72,7 @@ public class Shooter : MonoBehaviour
     private void OnInputDown(Vector2 position)
     {
         Debug.Log("[Shooter] OnInputDown, position => " + position);
+        inputActive = true;
 
         aimArrow.SetVisual(true);
         OnInputHoldAndMove(position);
@@ -68,8 +82,10 @@ public class Shooter : MonoBehaviour
     {
         Debug.Log("[Shooter] OnInputUp, position => " + position);
 
+        inputActive = false;
+
         aimArrow.SetVisual(false);
 
-        OnShoot?.Invoke(positions.Take (positionCount).ToArray ());
+        OnShoot?.Invoke(positions.Take (positionCount+1).ToArray ());
     }
 }

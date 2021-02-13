@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class MouseInput
 {
@@ -32,7 +33,6 @@ public class MouseInput
 
     #region private input variables
     private Vector2 lastPosition;
-    private bool lastDown;
     #endregion
 
     #region events
@@ -43,24 +43,22 @@ public class MouseInput
 
     public void Update()
     {
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
+
         Vector2 position = Input.mousePosition;
+
         bool isMouseDown = Input.GetMouseButtonDown(0);
+
         if (isMouseDown)
         {
-            if (!lastDown)
-            {
-                lastPosition = position;
-            }
-
+            lastPosition = position;
             OnDown?.Invoke(position);
         }
-
 
         bool isMouseUp = Input.GetMouseButtonUp(0);
         if (isMouseUp)
             OnUp?.Invoke(position);
-
-        lastDown = isMouseDown;
 
         if (Input.GetMouseButton (0))
         {
