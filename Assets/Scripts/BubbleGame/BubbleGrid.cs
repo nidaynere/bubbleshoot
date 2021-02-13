@@ -73,10 +73,14 @@ namespace Bob
 
         private List<Vector> GetCombinations (Bubble.BubbleType type, Vector pivotPosition, ref List<Vector> except)
         {
+            OutputLog.AddLog("Seeking at position => " + pivotPosition + ", type: " + type.ToString());
+
             List<Vector> final = new List<Vector>();
 
             for (int i = 0; i < dirCount; i++)
             {
+                OutputLog.AddLog("Direction => " + seekDirections[i]);
+
                 List<Vector> points = new List<Vector>();
 
                 var cPosition = pivotPosition + seekDirections[i];
@@ -84,26 +88,37 @@ namespace Bob
                 if (except != null && except.Contains(cPosition))
                 {
                     // except this.
+                    OutputLog.AddLog("Already seeked that position before => " + cPosition);
                     continue;
                 }
 
                 var bubble = GetFromPosition(cPosition);
                 if (bubble == null)
+                {
+                    OutputLog.AddLog("No bubble at this pos => " + cPosition);
                     continue;
+                }
 
                 except.Add(cPosition);
 
                 if (bubble.Numberos == type)
                 {
+                    OutputLog.AddLog("Found a sibling at => " + cPosition);
+
                     var newType = (Bubble.BubbleType)(int)type + 1;
                     points.Add(cPosition);
 
                     var go = GetCombinations(newType, cPosition, ref except);
                     points.AddRange(go);
                 }
+                else OutputLog.AddLog("No sibling at this position => " + cPosition);
 
                 if (final.Count < points.Count)
+                {
+                    OutputLog.AddLog("New list found, total length => " + final.Count);
                     final = points;
+                }
+
             }
 
             return final;

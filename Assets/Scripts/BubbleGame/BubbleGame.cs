@@ -124,6 +124,8 @@ namespace Bob
         private void CheckForMatch(int X, int Y)
         {
             GameEvents.OnBubblePositionUpdate?.Invoke (activeBubble.Id, X, Y);
+
+            map.SeekForCombine(new Vector(X, Y));
             //throw new System.NotImplementedException();
         }
     }
