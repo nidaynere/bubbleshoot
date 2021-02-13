@@ -44,17 +44,17 @@ public class GameManager : MonoBehaviour
         int X = (int)pos.x;
         int Y = -(int)pos.y;
 
-        SpawnBall(bubble, X, Y, 1);
+        SpawnBall(bubble, X, Y, 0.8f);
     }
 
     private void BubbleSpawned (Bubble bubble, int X, int Y)
     {
         Debug.Log("Bubble spawned => " + bubble.Id + " at " + X + "," + Y);
 
-        SpawnBall(bubble, X, Y, 1);
+        SpawnBall(bubble, X, Y + (X%2) * 0.1f, 0.8f);
     }
 
-    private void SpawnBall(Bubble bubble, int X, int Y, float scale = 1)
+    private void SpawnBall(Bubble bubble, float X, float Y, float scale = 1)
     {
         var gameBall = pool.Get();
         gameBall.transform.localPosition = new Vector3(X, -Y, 0);
