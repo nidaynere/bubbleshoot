@@ -2,8 +2,12 @@
 
 namespace Bob
 {
-    public struct BubbleGame
+    public class BubbleGame
     {
+#if UNITY_EDITOR
+        public BubbleGrid GetMap => map;
+#endif
+
         public BubbleEvents GameEvents;
         private BubbleGrid map;
         private ushort idCounter;
@@ -15,14 +19,10 @@ namespace Bob
         {
             #region define
             map = new BubbleGrid(new Vector (gridSizeX, gridSizeY));
-            idCounter = 0;
-            activeBubble = null;
-            nextBubble = null;
             GameEvents = new BubbleEvents();
             #endregion
 
-            GameEvents.OnPutBubble += PutBubble;
-            GameEvents.OnCheckForMatch += CheckForMatch;
+            GameEvents.RequestPutBubble += PutBubble;
         }
 
         public void NextTurn()
@@ -31,10 +31,15 @@ namespace Bob
             {
                 activeBubble = CreateBubble(ref idCounter);
                 GameEvents.OnActiveBallCreated?.Invoke(activeBubble);
+
+                OutputLog.AddLog("[BubbleGame] Active bubble Id => " + activeBubble.Id);
             }
             else
             {
                 activeBubble = nextBubble;
+
+                OutputLog.AddLog("[BubbleGame] Active bubble Id => " + activeBubble.Id);
+
                 GameEvents.OnNextBallBecomeActive?.Invoke();
             }
 
@@ -51,25 +56,38 @@ namespace Bob
         {
             count = Math.Min(count, map.Size.Y);
 
-            int mapSizeX = map.Size.X;
+            OutputLog.AddLog(count.ToString ());
 
-            Bubble[] bubbles = new Bubble[mapSizeX];
+            int mapSizeX = map.Size.X;
 
             for (int i = 0; i < count; i++)
             {
+                Bubble[] bubbles = new Bubble[mapSizeX];
+
                 for (int x = 0; x < mapSizeX; x++)
                 {
-                    var rand = new Random(i * x);
-                    var randomizer = rand.NextDouble()* 100f;
-                    if (randomizer <= fillChance)
+                    //var rand = new Random(i * x);
+                    //var randomizer = rand.NextDouble()* 100f;
+                    //if (randomizer <= fillChance)
                     {
                         bubbles[x] = CreateBubble(ref idCounter);
-                        GameEvents.OnBubbleSpawned?.Invoke(bubbles[x], x, i);
+                        GameEvents.OnBubbleSpawned?.Invoke(bubbles[x], x, 0);
                     }
                 }
-            }
 
-            map.AddBubbles(bubbles);
+                map.AddBubbles(bubbles);
+
+                // update bubbles at index 1;
+                Bubble[] f_bubbles;
+                Vector[] f_positions;
+                int f_count = map.GetBubblesAtRow(1, out f_bubbles, out f_positions);
+
+                for (int f = 0; f < f_count; f++)
+                {
+                    GameEvents.OnBubblePositionUpdate ?.Invoke(f_bubbles[f].Id, f_positions[f].X, f_positions[f].Y);
+                }
+                //
+            }
         }
 
         private Bubble CreateBubble (ref ushort counter)
@@ -83,23 +101,30 @@ namespace Bob
         /// </summary>
         /// <param name="X"></param>
         /// <param name="Y"></param>
-        private bool PutBubble(int X, int Y)
+        private bool PutBubble(int X, int Y, bool ForceClosePosition)
         {
             Vector position = new Vector(X, Y);
 
             if (!map.IsPositionAvailable(position))
             {
-                return false;
+                if (ForceClosePosition)
+                {
+                    if (!map.FindClosePosition(position, ref position))
+                        return false;
+                }
+                else return false;
             }
 
             map.AddToPosition(activeBubble, position);
+            CheckForMatch(position.X, position.Y);
 
             return true;
         }
 
         private void CheckForMatch(int X, int Y)
         {
-            throw new System.NotImplementedException();
+            GameEvents.OnBubblePositionUpdate?.Invoke (activeBubble.Id, X, Y);
+            //throw new System.NotImplementedException();
         }
     }
 }

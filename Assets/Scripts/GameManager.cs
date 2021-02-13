@@ -16,7 +16,32 @@ public class GameManager : MonoBehaviour
 
     private GameBall activeBall, nextBall;
 
+    private Dictionary<ushort, GameBall> spawneds = new Dictionary<ushort, GameBall>();
+
     private Pool pool;
+
+#if UNITY_EDITOR
+    private void OnGUI()
+    {
+        if (currentSession == null)
+            return;
+        var grid = currentSession.GetMap.GetGrid;
+        int length = grid.Length;
+        const float size = 50;
+        for (int i = 0; i < length; i++)
+        {
+            int xSize = grid[i].Length;
+
+            for (int x = 0; x < xSize; x++)
+            {
+                var obj = grid[i][x];
+                GUI.color = obj == null ? Color.green : Color.red;
+                GUI.Box(new Rect(x * size, i * size, size, size), obj != null ? obj.Id.ToString () : "");
+            }
+        }
+    }
+#endif
+
 
     public void Start()
     {
@@ -26,17 +51,40 @@ public class GameManager : MonoBehaviour
     }
     private void UserShoot(Vector3[] positions)
     {
-        inputEvents.OnGameplayStatusChange?.Invoke(false);
-
         int length = positions.Length;
         if (length == 0)
             return;
 
-        Vector3 lastPosition = positions[length-1];
+        inputEvents.OnGameplayStatusChange?.Invoke(false);
+
+        var lastPosition = positions[length - 1];
 
         activeBall.Move(positions, gameSettings.BubbleThrowSpeed, () => {
-            Debug.Log("transition completed");
             inputEvents.OnGameplayStatusChange?.Invoke(true);
+
+            lastPosition = holder.InverseTransformPoint(lastPosition);
+            lastPosition.y *= -1;
+            
+            int x = Mathf.RoundToInt(lastPosition.x);
+            int y = Mathf.RoundToInt(lastPosition.y);
+
+            // Trigger game.
+            var result = currentSession.GameEvents.RequestPutBubble(x, y, true);
+
+            if (!result)
+            {
+                Debug.LogError("Bubble game doesnt accept our position replacement. Try again or contact with the developer at freak99@gmail.com");
+
+                activeBall.Move(activeBallPoint.position, gameSettings.BubbleThrowSpeed, () =>
+                {
+                    inputEvents.OnGameplayStatusChange?.Invoke(true);
+                });
+            }
+            else
+            {
+                inputEvents.OnGameplayStatusChange?.Invoke(true);
+                Debug.Log("next round !!");
+            }
         });
     }
 
@@ -66,33 +114,44 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Active ball created => " + bubble.Id + " " + bubble.Numberos);
         var pos = activeBallPoint.localPosition;
-        int X = (int)pos.x;
-        int Y = -(int)pos.y;
-
-        activeBall = SpawnBall(bubble, X, Y, 0.8f);
+        activeBall = SpawnBall(bubble, pos, 0.8f);
     }
+
+    private Vector3 getGridPosition(int X, int Y)
+    {
+        return new Vector3(X, -Y + X % 2 * 0.1f);
+    }
+
 
     private void BubbleSpawned (Bubble bubble, int X, int Y)
     {
         Debug.Log("Bubble spawned => " + bubble.Id + " at " + X + "," + Y);
 
-        SpawnBall(bubble, X, Y + (X%2) * 0.1f, 0.8f);
+        var pos = getGridPosition(X, Y);
+        SpawnBall(bubble, pos, 0.8f);
     }
 
-    private GameBall SpawnBall(Bubble bubble, float X, float Y, float scale = 1)
+    private GameBall SpawnBall(Bubble bubble, Vector3 pos, float scale = 1)
     {
         var gameBall = pool.Get();
-        gameBall.transform.localPosition = new Vector3(X, -Y, 0);
+        gameBall.transform.localPosition = pos;
         gameBall.transform.localScale = Vector3.one * scale;
         gameBall.bubble = bubble;
 
         gameBall.gameObject.SetActive(true);
+
+        spawneds.Add(bubble.Id, gameBall);
 
         return gameBall;
     }
 
     private void BubbleDestroyed (ushort Id)
     {
+        if (spawneds.ContainsKey(Id))
+        {
+            spawneds.Remove(Id);
+        }
+
         Debug.Log("Bubble destroyed with Id => " +Id);
     }
 
@@ -103,6 +162,11 @@ public class GameManager : MonoBehaviour
 
     private void BubblePositionUpdate (ushort Id, int X, int Y)
     {
+        if (spawneds.ContainsKey(Id))
+        {
+            spawneds[Id].Move(holder.TransformPoint (getGridPosition(X, Y)), gameSettings.PositionUpdateSpeed);
+        }
+
         Debug.Log("Bubble position update => " + Id + " X="+ X + " Y=" + Y);
     }
 
@@ -115,9 +179,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Next ball spawned => " + bubble.Id + " " + bubble.Numberos);
         var pos = nextBallPoint.localPosition;
-        int X = (int)pos.x;
-        int Y = -(int)pos.y;
-        nextBall = SpawnBall (bubble, X, Y, 0.5f);
+        nextBall = SpawnBall (bubble, pos, 0.5f);
     }
 
     private void NextBallBecomeActive ()

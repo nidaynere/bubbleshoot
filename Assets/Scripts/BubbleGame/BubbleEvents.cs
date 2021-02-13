@@ -26,11 +26,8 @@ namespace Bob
         #endregion
 
         #region inputs
-        public delegate bool PutBubble(int X, int Y);
-        public delegate void CheckForMatch(int X, int Y);
-
-        public PutBubble OnPutBubble;
-        public CheckForMatch OnCheckForMatch;
+        public delegate bool PutBubble(int X, int Y, bool ForceClosePosition);
+        public PutBubble RequestPutBubble;
         #endregion
     }
 }

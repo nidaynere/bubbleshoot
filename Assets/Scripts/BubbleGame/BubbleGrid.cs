@@ -4,6 +4,10 @@ namespace Bob
 {
     public struct BubbleGrid
     {
+#if UNITY_EDITOR
+        public Bubble[][] GetGrid => grid;
+#endif
+
         const int dirCount = 8;
 
         private Bubble[][] grid;
@@ -115,14 +119,39 @@ namespace Bob
             return grid[position.Y][position.X];
         }
 
+        public bool FindClosePosition(Vector position, ref Vector result)
+        {
+            for (int i = 0; i < dirCount; i++)
+            {
+                var pos = position + seekDirections[i];
+                if (IsPositionAvailable(pos))
+                {
+                    result = pos;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public bool IsPositionAvailable (Vector position)
         {
+            OutputLog.AddLog("Checking " + position.ToString() + " if its available.");
             if (position.Y < 0 || position.Y >= Size.Y)
+            {
+                OutputLog.AddLog("Y is out of map");
                 return false;
-            if (position.X < 0 || position.X >= Size.X)
-                return false;
+            }
 
-            return GetFromPosition(position) == null;
+            if (position.X < 0 || position.X >= Size.X)
+            {
+                OutputLog.AddLog("X is out of map");
+                return false;
+            }
+
+            var result = GetFromPosition(position) == null;
+            OutputLog.AddLog("result => " + result);
+            return result;
         }
 
         public void AddToPosition(Bubble bubble, Vector position)
@@ -147,6 +176,38 @@ namespace Bob
                     grid[y + step][x] = grid[y][x];
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns all bubbles in the specific row index.
+        /// </summary>
+        /// <param name="rowIndex"></param>
+        /// <param name="bubbles"></param>
+        /// <param name="positions"></param>
+        /// <returns></returns>
+        public int GetBubblesAtRow (int rowIndex, out Bubble[] bubbles, out Vector[] positions)
+        {
+            if (rowIndex >= Size.Y)
+                rowIndex = Size.Y - 1;
+
+            var c = Size.X;
+
+            bubbles = new Bubble[c];
+            positions = new Vector[c];
+
+            int counter = 0;
+
+            for (int x = 0; x < c; x++)
+            {
+                if (grid[rowIndex][x] != null)
+                {
+                    bubbles[x] = grid[rowIndex][x];
+                    positions[x] = new Vector(x, rowIndex);
+                    counter++;
+                }
+            }
+
+            return counter;
         }
     }
 }
