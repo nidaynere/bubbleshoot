@@ -31,7 +31,7 @@ public class Pool
     public GameBall Get()
     {
         var target = poolObjects[currentStep];
-        if (++currentStep > size)
+        if (++currentStep >= size)
             currentStep = 0;
 
         return target;
