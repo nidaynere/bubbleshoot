@@ -188,10 +188,7 @@ namespace Bob
 
         private void CheckForMatch(Vector position)
         {
-            Vector[] mixes;
-            int mixCount;
-
-            var combines = map.SeekForCombine (position, out mixes, out mixCount);
+            var combines = map.SeekForCombine (position);
 
             OutputLog.AddLog("combine count." + combines.Count);
 
@@ -201,7 +198,12 @@ namespace Bob
             }
             else
             {
-                var mixTarget = map.GetFromPosition (combines[0]); // first member of combinations will get mixes, and start to combine.
+                var mixTarget = map.GetFromPosition(position); // first member of combinations will get mixes, and start to combine.
+                var mixes = map.GetMixes(mixTarget.Numberos, position, combines);
+
+                int mixCount = mixes.Count;
+                OutputLog.AddLog("mix count => " + mixCount);
+
                 // first mix
                 for (int i = 0; i < mixCount; i++)
                 {

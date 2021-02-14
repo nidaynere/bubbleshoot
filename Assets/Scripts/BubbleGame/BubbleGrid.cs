@@ -50,11 +50,8 @@ namespace Bob
             }
         }
 
-        public List<Vector> SeekForCombine(Vector mustContain, out Vector[] mixes, out int mixLength)
+        public List<Vector> SeekForCombine(Vector mustContain)
         {
-            mixes = new Vector[8];
-            mixLength = 0;
-
             int sizeY = Size.Y;
             int sizeX = Size.X;
 
@@ -67,8 +64,6 @@ namespace Bob
             {
                 for (int x = 0; x < sizeX; x++)
                 {
-                    mixLength = 0;
-
                     Vector position = new Vector(x, y);
 
                     var bubble = GetFromPosition(position);
@@ -88,9 +83,6 @@ namespace Bob
                         bestLength = combines.Count;
                         best = combines;
                         lastY = combines[combines.Count - 1].Y;
-
-                        // gathered mixes.
-                        mixLength = GetMixes(cType, position, mixes, best);
                     }
                 }
             }
@@ -98,36 +90,30 @@ namespace Bob
             return best;
         }
 
-        private int GetMixes (Bubble.BubbleType type, Vector pivotPosition, Vector[] mixes, List<Vector> except)
+        public List<Vector> GetMixes (Bubble.BubbleType type, Vector pivotPosition, List<Vector> exceptThis)
         {
-            int counter = 0;
+            List<Vector> mixes = new List<Vector>();
 
             for (int i = 0; i < dirCount; i++)
             {
                 var cPosition = pivotPosition + seekDirections[i];
 
+                if (exceptThis.Contains (cPosition))
+                    continue;
+
                 var bubble = GetFromPosition(cPosition);
                 if (bubble == null)
                 {
-                    OutputLog.AddLog("No bubble at this pos => " + cPosition);
                     continue;
                 }
 
                 if (bubble.Numberos == type)
                 {
-                    if (!except.Contains(cPosition))
-                    {
-                        counter++;
-
-                        OutputLog.AddLog("Found a sibling at => " + cPosition + " " + counter+ " " + mixes.Length);
-                        mixes[counter] = cPosition;
-                    }
-                    else OutputLog.AddLog("Found a sibling at => " + cPosition + " but it was in the exceptions.");
+                    mixes.AddRange ( GetMixes(type, cPosition, exceptThis) );
                 }
-                else OutputLog.AddLog("No sibling at this position => " + cPosition);
             }
 
-            return counter;
+            return mixes;
         }
 
         private List<Vector> GetCombinations (Bubble.BubbleType type, Vector pivotPosition)

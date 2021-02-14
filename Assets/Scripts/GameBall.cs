@@ -18,7 +18,7 @@ public class GameBall : Transition
         posY = Y;
 
         transform.localPosition = new Vector3(X, -Y);
-        visual.localPosition = new Vector3 (0, X % 2 * 0.1f);
+        visual.localPosition = new Vector3 (0, X % 2 * 0.2f);
     }
 
     public void SetTransition (int X, int Y, Action onCompleted = null)
