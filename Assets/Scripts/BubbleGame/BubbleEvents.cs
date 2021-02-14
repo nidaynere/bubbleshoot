@@ -10,7 +10,6 @@ namespace Bob
         public delegate void BubblePositionUpdate(ushort Id, int NewX, int NewY, bool IsInstant);
         public delegate void BubblePlacement (ushort Id, int NewX, int NewY);
         public delegate void BubbleCombined (ushort Id, ushort tId);
-        public delegate void BubbleExplode(ushort Id);
         public delegate void BubbleMixed (ushort Id, ushort tId);
         public delegate void BubbleIsNowFree(ushort Id);
         public delegate void ActiveBallCreated(Bubble bubble);
@@ -22,7 +21,6 @@ namespace Bob
 
         public BubbleSpawned OnBubbleSpawned;
         public BubbleValueUpdate OnBubbleValueUpdate;
-        public BubbleExplode OnBubbleExplode;
         public BubblePositionUpdate OnBubblePositionUpdate;
         public BubblePlacement OnBubblePlacement;
         public BubbleCombined OnBubbleCombined;

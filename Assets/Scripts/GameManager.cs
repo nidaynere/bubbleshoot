@@ -153,7 +153,6 @@ public class GameManager : MonoBehaviour
         currentSession.GameEvents.OnBubbleValueUpdate += BubbleValueUpdate;
         currentSession.GameEvents.OnNextBallSpawned += NextBallSpawned;
         currentSession.GameEvents.OnNextBallBecomeActive += NextBallBecomeActive;
-        currentSession.GameEvents.OnBubbleExplode += BubbleExplode;
         currentSession.GameEvents.OnReadyForVisualization += ReadyForVisualization;
 
         // Bubble<-->GamePlayEvents
@@ -288,11 +287,6 @@ public class GameManager : MonoBehaviour
     private void BubbleValueUpdate (ushort Id, Bubble.BubbleType newType)
     {
         Debug.Log("BubbleValue update => " + Id + ", " + newType);
-    }
-
-    private void BubbleExplode (ushort Id)
-    {
-        Debug.Log("BubbleExplode => " + Id);
     }
 
     private void NextBallSpawned (Bubble bubble)
