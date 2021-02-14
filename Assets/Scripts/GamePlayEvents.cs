@@ -5,5 +5,8 @@ using System;
 public class GamePlayEvents : ScriptableObject
 {
     public Action<bool> OnGameplayStatusChange;
+    public Action<int> OnScoreUpdate;
+    public Action<int> OnGameOver;
+    public Action OnGameStarted;
 }
 

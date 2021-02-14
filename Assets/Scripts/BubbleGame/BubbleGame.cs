@@ -18,7 +18,9 @@ namespace Bob
         private int rowCountAtPerTurn;
         private int rowCrowdNess;
 
-        private bool isStarted = false;
+        private bool isStarted;
+
+        private int userScore;
 
         /// <summary>
         /// Creates a bubble game.
@@ -43,6 +45,11 @@ namespace Bob
             GameEvents.RequestAvailablePosition += AvailablePosition;
         }
 
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
+
         public void NextTurn ()
         {
             if (!isStarted)
@@ -52,6 +59,17 @@ namespace Bob
             }
             else
             {
+                // Check for end game.
+                Bubble[] bubbles = new Bubble[map.Size.X];
+                Vector[] positions = new Vector[map.Size.X];
+                int count = map.GetBubblesAtRow(map.Size.Y - 2, map.Size.X, ref bubbles, ref positions);
+                if (count > 0)
+                {
+                    // game over:(
+                    GameEvents.OnGameFinished?.Invoke(userScore);
+                    return;
+                }
+                
                 CreateRows(rowCountAtPerTurn, rowCrowdNess, false);   
             }
 
@@ -125,6 +143,12 @@ namespace Bob
             return bubble;
         }
 
+        private void AddScore (Bubble.BubbleType type)
+        {
+            userScore += (int)type + 1;
+            GameEvents.OnGameScoreUpdate?.Invoke(userScore);
+        }
+
         private bool AvailablePosition(int X, int Y, out Vector position)
         {
             position = new Vector(X, Y);
@@ -183,6 +207,9 @@ namespace Bob
                 {
                     OutputLog.AddLog("mixing:" + mixes[i] + " to " + mixTarget.Id);
                     GameEvents.OnBubbleMixed?.Invoke (map.GetFromPosition(mixes[i]).Id, mixTarget.Id);
+
+                    AddScore(mixTarget.Numberos);
+
                     map.RemoveFromPosition(mixes[i]);
                 }
 
@@ -197,17 +224,14 @@ namespace Bob
 
                     next.IncreaseNumberos();
 
+                    AddScore(next.Numberos);
+
                     GameEvents.OnBubbleCombined?.Invoke(first.Id, next.Id);
 
                     /// remove first.
                     map.RemoveFromPosition(combines[i]);
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
         }
     }
 

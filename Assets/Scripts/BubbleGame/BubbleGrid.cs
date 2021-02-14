@@ -59,6 +59,8 @@ namespace Bob
             int sizeX = Size.X;
 
             int bestLength = 0;
+            int lastY = sizeY+1;
+
             List<Vector> best = new List<Vector>();
 
             for (int y = 0; y < sizeY; y++)
@@ -80,10 +82,12 @@ namespace Bob
                     var combines = GetCombinations(cType, position);
                     combines.Insert(0, position);
 
-                    if (bestLength < combines.Count && combines.Contains (mustContain))
+                    if ( ((bestLength == combines.Count && combines[combines.Count -1].Y < lastY) || bestLength < combines.Count) 
+                        && combines.Contains (mustContain))
                     {
                         bestLength = combines.Count;
                         best = combines;
+                        lastY = combines[combines.Count - 1].Y;
 
                         // gathered mixes.
                         mixLength = GetMixes(cType, position, mixes, best);

@@ -155,7 +155,17 @@ public class GameManager : MonoBehaviour
         currentSession.GameEvents.OnNextBallBecomeActive += NextBallBecomeActive;
         currentSession.GameEvents.OnBubbleExplode += BubbleExplode;
         currentSession.GameEvents.OnReadyForVisualization += ReadyForVisualization;
+
+        // Bubble<-->GamePlayEvents
+        currentSession.GameEvents.OnGameScoreUpdate += (int value) => { gamePlayEvents.OnScoreUpdate?.Invoke(value); };
+        currentSession.GameEvents.OnGameFinished += (int value) => {
+            Debug.Log("OnGameFinished()");
+            gamePlayEvents.OnGameplayStatusChange?.Invoke(false);
+            gamePlayEvents.OnGameOver?.Invoke(value); 
+        };
         //
+
+        gamePlayEvents.OnGameStarted?.Invoke();
 
         currentSession.NextTurn();
 

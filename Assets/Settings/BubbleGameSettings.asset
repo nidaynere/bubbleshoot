@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BubbleGameSettings
   m_EditorClassIdentifier: 
   GridSizeX: 6
-  GridSizeY: 4
+  GridSizeY: 6
   StartingRowCount: 2
   RowsAtPerTurn: 1
-  RowCrowdness: 70
+  RowCrowdness: 50
