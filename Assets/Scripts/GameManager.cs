@@ -47,8 +47,48 @@ public class GameManager : MonoBehaviour
     {
         pool = new Pool(holder, gameBall, poolSize);
 
-        shooter.RegisterShootEvent(UserShoot);
+        shooter.OnShoot += UserShoot;
+        shooter.OnAim += UserAim;
     }
+
+    [SerializeField] private Transform debugger;
+
+    private void UserAim (Vector3[] positions)
+    {
+        int length = positions.Length;
+        if (length == 0)
+            return;
+
+        var endPosition = FixEndPoint(positions, length);
+
+        debugger.position = endPosition;
+
+        endPosition = holder.InverseTransformPoint(endPosition);
+        endPosition.y *= -1;
+
+        int x = Mathf.RoundToInt(endPosition.x);
+        int y = Mathf.RoundToInt(endPosition.y);
+
+        Vector result;
+        if (currentSession.GameEvents.RequestAvailablePosition(x, y, out result))
+        {
+            debugger.localPosition = new Vector3(result.X, -result.Y);
+        }
+    }
+
+    private Vector3 FixEndPoint (Vector3[] positions, int length)
+    {
+        var endPosition = positions[length - 1];
+        var direciton = (endPosition - positions[length - 2]).normalized;
+        endPosition -= direciton;
+
+        // clamp by walls.
+        endPosition.x = Mathf.Clamp(endPosition.x, wallXStart.position.x + 1, wallXEnd.position.x - 1);
+        endPosition.y = Mathf.Clamp(endPosition.y, wallYStart.position.y + 1, wallYEnd.position.y - 1);
+        //
+        return endPosition;
+    }
+
     private void UserShoot(Vector3[] positions)
     {
         int length = positions.Length;
@@ -57,14 +97,7 @@ public class GameManager : MonoBehaviour
 
         GamePlayEvents.OnGameplayStatusChange?.Invoke(false);
 
-        var endPosition = positions[length - 1];
-        var direciton = (endPosition - positions[length - 2]).normalized;
-        endPosition -= direciton;
-
-        // clamp by walls.
-        endPosition.x = Mathf.Clamp(endPosition.x, wallXStart.position.x+1, wallXEnd.position.x-1);
-        endPosition.y = Mathf.Clamp(endPosition.y, wallYStart.position.y+1, wallYEnd.position.y-1);
-        //
+        var endPosition = FixEndPoint(positions, length);
 
         activeBall.Move(positions, gameSettings.BubbleThrowSpeed, () => {
             /*
@@ -79,7 +112,7 @@ public class GameManager : MonoBehaviour
             int y = Mathf.RoundToInt(endPosition.y);
 
             // Trigger game.
-            var result = currentSession.GameEvents.RequestPutBubble(x, y, true);
+            var result = currentSession.GameEvents.RequestPutBubble(x, y);
 
             if (!result)
             {

@@ -581,12 +581,12 @@ PrefabInstance:
         type: 3}
       propertyPath: walls.Array.data[0]
       value: 
-      objectReference: {fileID: 7883913367881423480}
+      objectReference: {fileID: 7883913367094899726}
     - target: {fileID: 1302824600907634541, guid: 4bb0bd44c0ce5ca488ab47d99652e55d,
         type: 3}
       propertyPath: walls.Array.data[1]
       value: 
-      objectReference: {fileID: 7883913367094899726}
+      objectReference: {fileID: 7883913367881423480}
     - target: {fileID: 1302824600907634541, guid: 4bb0bd44c0ce5ca488ab47d99652e55d,
         type: 3}
       propertyPath: walls.Array.data[2]

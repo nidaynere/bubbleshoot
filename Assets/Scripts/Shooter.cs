@@ -5,16 +5,9 @@ public class Shooter : MonoBehaviour
 {
     #region events
     public delegate void ShootEvent(Vector3[] positions);
-    private ShootEvent OnShoot;
+    public ShootEvent OnShoot;
+    public ShootEvent OnAim;
 
-    public void RegisterShootEvent(ShootEvent shootEvent)
-    {
-        OnShoot += shootEvent;
-    }
-    public void UnRegisterShootEvent(ShootEvent shootEvent)
-    {
-        OnShoot -= shootEvent;
-    }
     #endregion
 
     #region serialized variables
@@ -64,9 +57,9 @@ public class Shooter : MonoBehaviour
 
     private void OnInputHoldAndMove(Vector2 position)
     {
-        Debug.Log("[Shooter] OnInputHoldAndMove, position => " + position);
-
         positionCount = aimArrow.SetDirection(getAimDirection(ref position), maxCrosses, positions);
+
+        OnAim?.Invoke(positions.Take(positionCount + 1).ToArray());
     }
 
     private void OnInputDown(Vector2 position)

@@ -32,8 +32,11 @@ namespace Bob
         #endregion
 
         #region inputs
-        public delegate bool PutBubble(int X, int Y, bool ForceClosePosition);
+        public delegate bool PutBubble(int X, int Y);
+        public delegate bool AvailablePosition(int X, int Y, out Vector result);
+
         public PutBubble RequestPutBubble;
+        public AvailablePosition RequestAvailablePosition;
         #endregion
     }
 }

@@ -23,6 +23,7 @@ namespace Bob
             #endregion
 
             GameEvents.RequestPutBubble += PutBubble;
+            GameEvents.RequestAvailablePosition += AvailablePosition;
         }
 
         public void NextTurn()
@@ -93,23 +94,32 @@ namespace Bob
             return bubble;
         }
 
+        private bool AvailablePosition(int X, int Y, out Vector position)
+        {
+            position = new Vector(X, Y);
+
+            if (!map.IsPositionAvailable(position))
+            {
+                if (!map.FindClosePosition(position, ref position))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// put active ball to a position and let the grid run the algorithm.
         /// </summary>
         /// <param name="X"></param>
         /// <param name="Y"></param>
-        private bool PutBubble(int X, int Y, bool ForceClosePosition)
+        private bool PutBubble(int X, int Y)
         {
-            Vector position = new Vector(X, Y);
-
-            if (!map.IsPositionAvailable(position))
+            Vector position;
+            if (!AvailablePosition(X, Y, out position))
             {
-                if (ForceClosePosition)
-                {
-                    if (!map.FindClosePosition(position, ref position))
-                        return false;
-                }
-                else return false;
+                return false;
             }
 
             map.AddToPosition(activeBubble, position);
@@ -122,8 +132,6 @@ namespace Bob
         {
             OutputLog.AddLog("checking for match at " + X + " " + Y);
 
-            GameEvents.OnBubblePositionUpdate?.Invoke (activeBubble.Id, X, Y, false);
-
             Vector[] mixes;
             int mixCount;
 
@@ -134,6 +142,7 @@ namespace Bob
             if (combines.Count < 2)
             {
                 OutputLog.AddLog("no match.");
+                GameEvents.OnBubblePositionUpdate?.Invoke(activeBubble.Id, X, Y, false);
             }
             else
             {
@@ -142,7 +151,7 @@ namespace Bob
                 for (int i = 0; i < mixCount; i++)
                 {
                     OutputLog.AddLog("mixing:" + mixes[i] + " to " + mixTarget.Id);
-                    GameEvents.OnBubbleMixed(map.GetFromPosition(mixes[i]).Id, mixTarget.Id);
+                    GameEvents.OnBubbleMixed?.Invoke (map.GetFromPosition(mixes[i]).Id, mixTarget.Id);
                     map.RemoveFromPosition(mixes[i]);
                 }
 
@@ -155,7 +164,7 @@ namespace Bob
 
                     OutputLog.AddLog("combining: " + first.Id + " to " + next.Id);
 
-                    GameEvents.OnBubbleCombined (first.Id, next.Id);
+                    GameEvents.OnBubbleCombined?.Invoke(first.Id, next.Id);
 
                     /// remove first.
                     map.RemoveFromPosition(combines[i]);
@@ -163,16 +172,18 @@ namespace Bob
                     bool numberosIncrease = next.IncreaseNumberos();
                     if (numberosIncrease)
                     {
-                        GameEvents.OnBubbleValueUpdate(next.Id, next.Numberos);
+                        GameEvents.OnBubbleValueUpdate?.Invoke (next.Id, next.Numberos);
                     }
                     else
                     {
-                        GameEvents.OnBubbleExplode(next.Id);
+                        GameEvents.OnBubbleExplode?.Invoke(next.Id);
                     }
                 }
 
-                GameEvents.OnReadyForVisualization();
+                GameEvents.OnReadyForVisualization?.Invoke();
             }
         }
+
     }
+
 }
