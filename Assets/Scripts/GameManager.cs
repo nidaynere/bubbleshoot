@@ -151,6 +151,7 @@ public class GameManager : MonoBehaviour
         currentSession.GameEvents.OnBubbleMixed += BubbleMixed;
         currentSession.GameEvents.OnBubbleIsNowFree += BubbleIsNowFree;
         currentSession.GameEvents.OnBubblePositionUpdate += BubblePositionUpdate;
+        currentSession.GameEvents.OnBubblePlacement += BubblePlacement;
         currentSession.GameEvents.OnBubbleSpawned += BubbleSpawned;
         currentSession.GameEvents.OnBubbleValueUpdate += BubbleValueUpdate;
         currentSession.GameEvents.OnNextBallSpawned += NextBallSpawned;
@@ -252,10 +253,22 @@ public class GameManager : MonoBehaviour
         {
             if (IsInstant)
                 spawneds[Id].SetPosition(X, Y);
-            else spawneds[Id].SetTransition(X, Y);
+            else
+            {
+                spawneds[Id].SetTransition(X, Y);
+            }
         }
 
         Debug.Log("Bubble position update => " + Id + " X="+ X + " Y=" + Y);
+    }
+
+    private void BubblePlacement(ushort Id, int X, int Y)
+    {
+        animationQuery.AddToQuery(
+            new AnimationQuery.PlacementAction(spawneds[Id], X, Y)
+        );
+
+        Debug.Log("Bubble placement => " + Id + " X=" + X + " Y=" + Y);
     }
 
     private void BubbleValueUpdate (ushort Id, Bubble.BubbleType newType)

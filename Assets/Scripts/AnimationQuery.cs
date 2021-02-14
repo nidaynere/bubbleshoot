@@ -109,4 +109,22 @@ public struct AnimationQuery
             });
         }
     }
+    [System.Serializable]
+    public class PlacementAction : BaseAction
+    {
+        private int X, Y;
+        public PlacementAction(GameBall _ballFrom, int _X, int _Y) : base(_ballFrom, null)
+        {
+            X = _X;
+            Y = _Y;
+        }
+
+        public override void Trigger(GameSettings gameSettings, Action onCompleted)
+        {
+            var _from = ballFrom;
+            var _to = ballTo;
+
+            ballFrom.SetTransition(X, Y, () => { onCompleted?.Invoke(); });
+        }
+    }
 }

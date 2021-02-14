@@ -61,6 +61,6 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   BubbleThrowSpeed: 10
-  PositionUpdateSpeed: 1.75
+  PositionUpdateSpeed: 2
   CombineAnimationDelay: 1
   ScaleUpdateSpeed: 0.8

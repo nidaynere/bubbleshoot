@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Bob
 {
@@ -123,26 +122,26 @@ namespace Bob
             }
 
             map.AddToPosition(activeBubble, position);
-            CheckForMatch(position.X, position.Y);
+            GameEvents.OnBubblePlacement?.Invoke(activeBubble.Id, position.X, position.Y);
+            CheckForMatch(position);
+
+            GameEvents.OnReadyForVisualization?.Invoke();
 
             return true;
         }
 
-        private void CheckForMatch(int X, int Y)
+        private void CheckForMatch(Vector position)
         {
-            OutputLog.AddLog("checking for match at " + X + " " + Y);
-
             Vector[] mixes;
             int mixCount;
 
-            var combines = map.SeekForCombine(new Vector(X, Y), out mixes, out mixCount);
+            var combines = map.SeekForCombine (position, out mixes, out mixCount);
 
             OutputLog.AddLog("combine count." + combines.Count);
 
             if (combines.Count < 2)
             {
                 OutputLog.AddLog("no match.");
-                GameEvents.OnBubblePositionUpdate?.Invoke(activeBubble.Id, X, Y, false);
             }
             else
             {
@@ -164,23 +163,13 @@ namespace Bob
 
                     OutputLog.AddLog("combining: " + first.Id + " to " + next.Id);
 
+                    next.IncreaseNumberos();
+
                     GameEvents.OnBubbleCombined?.Invoke(first.Id, next.Id);
 
                     /// remove first.
                     map.RemoveFromPosition(combines[i]);
-
-                    bool numberosIncrease = next.IncreaseNumberos();
-                    if (numberosIncrease)
-                    {
-                        GameEvents.OnBubbleValueUpdate?.Invoke (next.Id, next.Numberos);
-                    }
-                    else
-                    {
-                        GameEvents.OnBubbleExplode?.Invoke(next.Id);
-                    }
                 }
-
-                GameEvents.OnReadyForVisualization?.Invoke();
             }
         }
 

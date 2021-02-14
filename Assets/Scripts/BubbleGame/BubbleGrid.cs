@@ -50,28 +50,46 @@ namespace Bob
             }
         }
 
-        public List<Vector> SeekForCombine(Vector position, out Vector[] mixes, out int mixCount)
+        public List<Vector> SeekForCombine(Vector mustContain, out Vector[] mixes, out int mixLength)
         {
-            mixCount = 0;
-            mixes = new Vector[dirCount];
+            mixes = new Vector[0];
+            mixLength = 0;
 
-            OutputLog.AddLog("[Grid] Seeking for combine at position => " + position);
+            int sizeY = Size.Y;
+            int sizeX = Size.X;
 
-            var bubble = GetFromPosition(position);
-            if (bubble == null)
+            int bestLength = 0;
+            List<Vector> best = new List<Vector>();
+
+            for (int y = 0; y < sizeY; y++)
             {
-                OutputLog.AddError("[Grid] No bubble at this position to start seeking => " + position);
-                return null;
+                for (int x = 0; x < sizeX; x++)
+                {
+                    mixLength = 0;
+
+                    Vector position = new Vector(x, y);
+
+                    var bubble = GetFromPosition(position);
+                    if (bubble == null)
+                    {
+                        continue;
+                    }
+
+                    var cType = bubble.Numberos;
+
+                    var combines = GetCombinations(cType, position);
+                    combines.Insert(0, position);
+
+                    if (bestLength < combines.Count && combines.Contains (mustContain))
+                    {
+                        bestLength = combines.Count;
+                        best = combines;
+
+                        // gathered mixes.
+                        mixLength = GetMixes(cType, position, mixes, best);
+                    }
+                }
             }
-            var cType = bubble.Numberos;
-
-            OutputLog.AddLog("[Grid] Seeking started at position " + position + " with bubble type => " + cType);
-
-            var best = GetCombinations(cType, position);
-            best.Insert(0, position);
-
-            // gathered mixes.
-            mixCount = GetMixes(cType, position, mixes, best);
 
             return best;
         }
