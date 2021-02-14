@@ -16,4 +16,4 @@ MonoBehaviour:
   GridSizeY: 8
   StartingRowCount: 2
   RowsAtPerTurn: 1
-  RowCrowdness: 100
+  RowCrowdness: 40

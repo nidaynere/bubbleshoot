@@ -83,6 +83,7 @@ namespace Bob
                         bestLength = combines.Count;
                         best = combines;
                         lastY = combines[combines.Count - 1].Y;
+                        OutputLog.AddLog("better combine path found, count => " + bestLength + ", y= "+ lastY);
                     }
                 }
             }
@@ -112,7 +113,7 @@ namespace Bob
                 if (bubble.Numberos == type)
                 {
                     mixes.Add(cPosition);
-
+                    exceptThis.Add(cPosition);
                     mixes.AddRange (GetMixes(type, cPosition, exceptThis));
                 }
             }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Bob
 {
@@ -199,7 +200,11 @@ namespace Bob
             else
             {
                 var mixTarget = map.GetFromPosition(position); // first member of combinations will get mixes, and start to combine.
-                var mixes = map.GetMixes(mixTarget.Numberos, position, combines);
+
+                var except = new List<Vector>();
+                except.AddRange(combines);
+
+                var mixes = map.GetMixes(mixTarget.Numberos, position, except);
 
                 int mixCount = mixes.Count;
                 OutputLog.AddLog("mix count => " + mixCount);

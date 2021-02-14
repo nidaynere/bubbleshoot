@@ -1,13 +1,11 @@
 ﻿using UnityEngine;
 using Bob;
-using UnityEngine.UI;
 using System;
 
 public class GameBall : Transition
 {
     [SerializeField] private BallColors ballColors;
     [SerializeField] private MeshRenderer meshRenderer;
-    [SerializeField] private Text text;
     [SerializeField] private Transform visual;
 
     private int posX, posY;
@@ -48,7 +46,6 @@ public class GameBall : Transition
         {
             _bubble = value;
             Upgrade();
-            meshRenderer.sharedMaterial = ballColors.Materials[(int)_bubble.Numberos];
         }
     }
 
@@ -60,8 +57,7 @@ public class GameBall : Transition
 
     public void Upgrade()
     {
-        text.text = _bubble.Numberos.ToString().Replace("_", "");
-
+        meshRenderer.sharedMaterial = ballColors.Materials[(int)_bubble.Numberos];
         // TODO animation.
     }
 }

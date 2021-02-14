@@ -192,12 +192,12 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Active ball created => " + bubble.Id + " " + bubble.Numberos);
         var pos = activeBallPoint.localPosition;
-        activeBall = SpawnBall(bubble, pos, 0.8f);
+        activeBall = SpawnBall(bubble, pos, 1);
     }
 
     private void BubbleSpawned (Bubble bubble, int X, int Y)
     {
-        SpawnBall(bubble, X, Y, 0.8f);
+        SpawnBall(bubble, X, Y, 1);
     }
 
     private GameBall SpawnBall(Bubble bubble, int X, int Y, float scale = 1)
@@ -300,7 +300,7 @@ public class GameManager : MonoBehaviour
     {
         activeBall = nextBall;
         activeBall.Move(activeBallPoint.position, animationSettings.PositionUpdateSpeed);
-        activeBall.Scale(Vector3.one * 0.8f);
+        activeBall.Scale(Vector3.one * 1);
 
         Debug.Log("Next ball become active!");
     }
