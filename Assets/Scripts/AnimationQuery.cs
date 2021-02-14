@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
 
-public struct CombineAnimationQuery
+public struct AnimationQuery
 {
     private GameSettings gameSettings;
     private List<BaseAction> Query;
 
-    public CombineAnimationQuery(GameSettings _gameSettings)
+    public AnimationQuery(GameSettings _gameSettings)
     {
         gameSettings = _gameSettings;
         Query = new List<BaseAction>();
     }
 
-    public void AddToQuery(GameBall ball1, GameBall ball2)
+    public void AddToQuery(BaseAction animation)
     {
-        Query.Add(new BaseAction(ball1, ball2));
+        Query.Add(animation);
     }
 
     public IEnumerator DoQuery (Action onCompleted)

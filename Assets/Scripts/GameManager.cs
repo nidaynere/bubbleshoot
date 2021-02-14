@@ -102,10 +102,14 @@ public class GameManager : MonoBehaviour
     }
 
     private BubbleGame currentSession;
+
+    private AnimationQuery animationQuery;
+
     public void CreateGame()
     {
         Clear();
 
+        animationQuery = new AnimationQuery(gameSettings);
         currentSession = new BubbleGame(width, height);
 
         // Register outputs to the game.
@@ -119,6 +123,7 @@ public class GameManager : MonoBehaviour
         currentSession.GameEvents.OnNextBallSpawned += NextBallSpawned;
         currentSession.GameEvents.OnNextBallBecomeActive += NextBallBecomeActive;
         currentSession.GameEvents.OnBubbleExplode += BubbleExplode;
+        currentSession.GameEvents.OnReadyForVisualization += ReadyForVisualization;
         //
 
         currentSession.CreateRows(2, 40, true);
@@ -131,6 +136,8 @@ public class GameManager : MonoBehaviour
     {
         if (currentSession != null)
         { /// Clear old game.
+            StopAllCoroutines();
+
             foreach (var obj in spawneds)
                 obj.Value.gameObject.SetActive(false);
 
@@ -178,11 +185,28 @@ public class GameManager : MonoBehaviour
     private void BubbleCombined (ushort Id, ushort tId)
     {
         Debug.Log("Bubble {"+ Id +"} combined with Id => " +tId);
+
+        animationQuery.AddToQuery(
+            new AnimationQuery.CombineAction(spawneds[Id], spawneds[tId])
+            );
     }
 
     private void BubbleMixed(ushort Id, ushort tId)
     {
         Debug.Log("Bubble {" + Id + "} mixed with Id => " + tId);
+
+        animationQuery.AddToQuery(
+            new AnimationQuery.MixAction(spawneds[Id], spawneds[tId])
+            );
+    }
+
+    private void ReadyForVisualization()
+    {
+        Debug.Log("Ready for visualization.");
+
+        StartCoroutine(animationQuery.DoQuery(() => {
+            Debug.Log("Visualization completed.");
+        }));
     }
 
     private void BubbleIsNowFree (ushort Id)

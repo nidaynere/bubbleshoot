@@ -15,6 +15,7 @@ namespace Bob
         public delegate void ActiveBallCreated(Bubble bubble);
         public delegate void NextBallBecomeActive();
         public delegate void NextBallSpawned(Bubble bubble);
+        public delegate void ReadyForVisualiation();
 
         public BubbleSpawned OnBubbleSpawned;
         public BubbleValueUpdate OnBubbleValueUpdate;
@@ -27,6 +28,7 @@ namespace Bob
         public NextBallBecomeActive OnNextBallBecomeActive;
         public ActiveBallCreated OnActiveBallPlaced;
         public NextBallSpawned OnNextBallSpawned;
+        public ReadyForVisualiation OnReadyForVisualization;
         #endregion
 
         #region inputs

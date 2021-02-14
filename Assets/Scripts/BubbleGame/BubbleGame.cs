@@ -170,6 +170,8 @@ namespace Bob
                         GameEvents.OnBubbleExplode(next.Id);
                     }
                 }
+
+                GameEvents.OnReadyForVisualization();
             }
         }
     }
