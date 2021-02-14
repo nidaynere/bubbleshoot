@@ -104,6 +104,8 @@ public class GameManager : MonoBehaviour
     private BubbleGame currentSession;
     public void CreateGame()
     {
+        Clear();
+
         currentSession = new BubbleGame(width, height);
 
         // Register outputs to the game.
@@ -123,6 +125,19 @@ public class GameManager : MonoBehaviour
         currentSession.NextTurn();
 
         GamePlayEvents.OnGameplayStatusChange?.Invoke(true);
+    }
+
+    public void Clear()
+    {
+        if (currentSession != null)
+        { /// Clear old game.
+            foreach (var obj in spawneds)
+                obj.Value.gameObject.SetActive(false);
+
+            spawneds.Clear();
+
+            currentSession = null;
+        }
     }
 
     private void ActiveBallCreated (Bubble bubble)
