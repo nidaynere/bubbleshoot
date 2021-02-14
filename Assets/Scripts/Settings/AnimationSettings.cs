@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "GameSettings", menuName = "GameSettings", order = 1)]
-public class GameSettings : ScriptableObject
+[CreateAssetMenu(fileName = "AnimationSettings", menuName = "Animation Settings", order = 1)]
+public class AnimationSettings : ScriptableObject
 {
     public AnimationCurve TransitionCurve;
     public AnimationCurve ScaleCurve;

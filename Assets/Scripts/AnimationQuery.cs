@@ -6,10 +6,10 @@ using System.Collections;
 [System.Serializable]
 public struct AnimationQuery
 {
-    private GameSettings gameSettings;
+    private AnimationSettings gameSettings;
     private List<BaseAction> Query;
 
-    public AnimationQuery(GameSettings _gameSettings)
+    public AnimationQuery(AnimationSettings _gameSettings)
     {
         gameSettings = _gameSettings;
         Query = new List<BaseAction>();
@@ -69,7 +69,7 @@ public struct AnimationQuery
             ballTo = _ballTo;
         }
 
-        public virtual void Trigger(GameSettings gameSettings, Action onCompleted) { }
+        public virtual void Trigger(AnimationSettings gameSettings, Action onCompleted) { }
     }
     [System.Serializable]
     public class CombineAction : BaseAction
@@ -79,7 +79,7 @@ public struct AnimationQuery
 
         }
 
-        public override void Trigger(GameSettings gameSettings, Action onCompleted)
+        public override void Trigger(AnimationSettings gameSettings, Action onCompleted)
         {
             var _from = ballFrom;
             var _to = ballTo;
@@ -99,7 +99,7 @@ public struct AnimationQuery
 
         }
 
-        public override void Trigger(GameSettings gameSettings, Action onCompleted)
+        public override void Trigger(AnimationSettings gameSettings, Action onCompleted)
         {
             var _from = ballFrom;
             var _to = ballTo;
@@ -119,7 +119,7 @@ public struct AnimationQuery
             Y = _Y;
         }
 
-        public override void Trigger(GameSettings gameSettings, Action onCompleted)
+        public override void Trigger(AnimationSettings gameSettings, Action onCompleted)
         {
             var _from = ballFrom;
             var _to = ballTo;

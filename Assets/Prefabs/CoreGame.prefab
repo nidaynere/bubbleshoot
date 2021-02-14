@@ -289,14 +289,16 @@ MonoBehaviour:
   shooter: {fileID: 7883913366511982377}
   width: 6
   height: 4
-  GamePlayEvents: {fileID: 11400000, guid: fdd2dc90e8207ff41be47a02868202d1, type: 2}
-  gameSettings: {fileID: 11400000, guid: a83af7336ad93a44cafe37345ee10404, type: 2}
+  gamePlayEvents: {fileID: 11400000, guid: fdd2dc90e8207ff41be47a02868202d1, type: 2}
+  animationSettings: {fileID: 11400000, guid: a83af7336ad93a44cafe37345ee10404, type: 2}
+  gameSettings: {fileID: 11400000, guid: 6a02ee70ed8b280499273bd071d0bed8, type: 2}
   activeBallPoint: {fileID: 1234854169}
   nextBallPoint: {fileID: 116916650}
   wallXStart: {fileID: 7883913367094899723}
   wallXEnd: {fileID: 7883913367881423365}
   wallYStart: {fileID: 7883913367986998916}
   wallYEnd: {fileID: 7883913366769762381}
+  debugger: {fileID: 0}
 --- !u!1 &7750003341229262258
 GameObject:
   m_ObjectHideFlags: 0

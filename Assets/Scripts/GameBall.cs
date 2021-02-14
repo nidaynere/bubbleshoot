@@ -27,7 +27,7 @@ public class GameBall : Transition
         posY = Y;
         var tPos = transform.parent.TransformPoint (new Vector3(X, -Y));
 
-        Move(tPos, gameSettings.PositionUpdateSpeed, onCompleted);
+        Move(tPos, animationSettings.PositionUpdateSpeed, onCompleted);
     }
 
     public void GetPosition (out int X, out int Y)

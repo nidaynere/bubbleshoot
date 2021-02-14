@@ -4,7 +4,7 @@ using System.Collections;
 
 public class Transition : MonoBehaviour
 {
-    [SerializeField] protected GameSettings gameSettings;
+    [SerializeField] protected AnimationSettings animationSettings;
 
     private Coroutine currentTransition;
 
@@ -76,7 +76,7 @@ public class Transition : MonoBehaviour
             progress = Mathf.Min(progress + progressSpeed * Time.deltaTime, 1);
 
             transform.position = Vector3.Lerp(startPosition, target, 
-                useCurve ? gameSettings.TransitionCurve.Evaluate (progress) : progress);
+                useCurve ? animationSettings.TransitionCurve.Evaluate (progress) : progress);
 
             if (progress == 1)
             {
@@ -91,14 +91,14 @@ public class Transition : MonoBehaviour
     {
         Vector3 startScale = transform.localScale;
         float progress = 0;
-        float progressSpeed = gameSettings.ScaleUpdateSpeed / (Vector3.Distance(target, startScale) + 0.001f);
+        float progressSpeed = animationSettings.ScaleUpdateSpeed / (Vector3.Distance(target, startScale) + 0.001f);
 
         while (true)
         {
             progress = Mathf.Min(progress + progressSpeed * Time.deltaTime, 1);
 
             transform.localScale = Vector3.Lerp(startScale, target,
-                gameSettings.ScaleCurve.Evaluate(progress));
+                animationSettings.ScaleCurve.Evaluate(progress));
 
             if (progress == 1)
             {

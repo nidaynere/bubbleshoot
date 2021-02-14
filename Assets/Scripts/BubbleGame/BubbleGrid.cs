@@ -52,7 +52,7 @@ namespace Bob
 
         public List<Vector> SeekForCombine(Vector mustContain, out Vector[] mixes, out int mixLength)
         {
-            mixes = new Vector[0];
+            mixes = new Vector[8];
             mixLength = 0;
 
             int sizeY = Size.Y;
@@ -97,6 +97,7 @@ namespace Bob
         private int GetMixes (Bubble.BubbleType type, Vector pivotPosition, Vector[] mixes, List<Vector> except)
         {
             int counter = 0;
+
             for (int i = 0; i < dirCount; i++)
             {
                 var cPosition = pivotPosition + seekDirections[i];
@@ -112,8 +113,10 @@ namespace Bob
                 {
                     if (!except.Contains(cPosition))
                     {
-                        OutputLog.AddLog("Found a sibling at => " + cPosition);
-                        mixes[counter++] = cPosition;
+                        counter++;
+
+                        OutputLog.AddLog("Found a sibling at => " + cPosition + " " + counter+ " " + mixes.Length);
+                        mixes[counter] = cPosition;
                     }
                     else OutputLog.AddLog("Found a sibling at => " + cPosition + " but it was in the exceptions.");
                 }

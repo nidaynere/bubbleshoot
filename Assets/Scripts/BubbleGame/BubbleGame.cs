@@ -2,7 +2,7 @@
 
 namespace Bob
 {
-    public class BubbleGame
+    public class BubbleGame : IDisposable
     {
 #if UNITY_EDITOR
         public BubbleGrid GetMap => map;
@@ -14,19 +14,47 @@ namespace Bob
         private Bubble activeBubble;
         private Bubble nextBubble;
 
-        public BubbleGame(int gridSizeX, int gridSizeY)
+        private int startingRowCount;
+        private int rowCountAtPerTurn;
+        private int rowCrowdNess;
+
+        private bool isStarted = false;
+
+        /// <summary>
+        /// Creates a bubble game.
+        /// </summary>
+        /// <param name="gridSizeX">X size of the grid</param>
+        /// <param name="gridSizeY">Y size of the grid</param>
+        /// <param name="startingRowCount">How many rows will be generated at start.</param>
+        /// <param name="rowCountAtPerTurn">How many rows will be generated at a new turn</param>
+        /// <param name="rowCrowdNess">How much crowdness rows should have. It's a randomizer. Range is between 0-100</param>
+        public BubbleGame (int gridSizeX, int gridSizeY, int startingRowCount, int rowCountAtPerTurn, int rowCrowdNess)
         {
             #region define
             map = new BubbleGrid(new Vector (gridSizeX, gridSizeY));
             GameEvents = new BubbleEvents();
             #endregion
 
+            this.startingRowCount = startingRowCount;
+            this.rowCountAtPerTurn = rowCountAtPerTurn;
+            this.rowCrowdNess = rowCrowdNess;
+
             GameEvents.RequestPutBubble += PutBubble;
             GameEvents.RequestAvailablePosition += AvailablePosition;
         }
 
-        public void NextTurn()
+        public void NextTurn ()
         {
+            if (!isStarted)
+            {
+                isStarted = true;
+                CreateRows(startingRowCount, rowCrowdNess, true);
+            }
+            else
+            {
+                CreateRows(rowCountAtPerTurn, rowCrowdNess, false);   
+            }
+
             if (activeBubble == null)
             {
                 activeBubble = CreateBubble(ref idCounter);
@@ -54,14 +82,15 @@ namespace Bob
         /// <param name="fillChance">Fill chance should be between 0 and 100. 100 Means always create points inside row.</param>
         public void CreateRows(int count, int fillChance, bool isInstant)
         {
-            count = Math.Min(count, map.Size.Y);
-
             int mapSizeX = map.Size.X;
+            int mapSizeY = map.Size.Y;
+            
+            count = Math.Min(count, mapSizeY);
 
-            // update bubbles at index 1;
             Bubble[] f_bubbles = new Bubble[mapSizeX];
             Vector[] f_positions = new Vector[mapSizeX];
 
+            // update bubbles at index 1;
             for (int i = 0; i < count; i++)
             {
                 Bubble[] bubbles = new Bubble[mapSizeX];
@@ -79,10 +108,13 @@ namespace Bob
 
                 map.AddBubbles(bubbles);
 
-                int f_count = map.GetBubblesAtRow(1, mapSizeX, ref f_bubbles, ref f_positions);
-                for (int f = 0; f < f_count; f++)
+                for (int y = 1; y < mapSizeY; y++)
                 {
-                    GameEvents.OnBubblePositionUpdate?.Invoke(f_bubbles[f].Id, f_positions[f].X, f_positions[f].Y, isInstant);
+                    int f_count = map.GetBubblesAtRow(y, mapSizeX, ref f_bubbles, ref f_positions);
+                    for (int f = 0; f < f_count; f++)
+                    {
+                        GameEvents.OnBubblePositionUpdate?.Invoke(f_bubbles[f].Id, f_positions[f].X, f_positions[f].Y, isInstant);
+                    }
                 }
             }
         }
@@ -173,6 +205,10 @@ namespace Bob
             }
         }
 
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
     }
 
 }

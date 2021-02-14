@@ -9,8 +9,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int poolSize;
     [SerializeField] private Shooter shooter;
     [SerializeField] private int width, height;
-    [SerializeField] private GamePlayEvents GamePlayEvents;
-    [SerializeField] private GameSettings gameSettings;
+    [SerializeField] private GamePlayEvents gamePlayEvents;
+    [SerializeField] private AnimationSettings animationSettings;
+    [SerializeField] private BubbleGameSettings gameSettings;
     [SerializeField] private Transform activeBallPoint, nextBallPoint;
     [SerializeField] private Transform wallXStart, wallXEnd, wallYStart, wallYEnd;
 
@@ -95,11 +96,11 @@ public class GameManager : MonoBehaviour
         if (length == 0)
             return;
 
-        GamePlayEvents.OnGameplayStatusChange?.Invoke(false);
+        gamePlayEvents.OnGameplayStatusChange?.Invoke(false);
 
         var endPosition = FixEndPoint(positions, length);
 
-        activeBall.Move(positions, gameSettings.BubbleThrowSpeed, () => {
+        activeBall.Move(positions, animationSettings.BubbleThrowSpeed, () => {
             /*
              * Convert this position to Bubble grid.
              * */
@@ -118,18 +119,10 @@ public class GameManager : MonoBehaviour
             {
                 Debug.LogError("Bubble game doesnt accept our position replacement. Try again or contact with the developer at freak99@gmail.com");
 
-                activeBall.Move(activeBallPoint.position, gameSettings.BubbleThrowSpeed, () =>
+                activeBall.Move(activeBallPoint.position, animationSettings.BubbleThrowSpeed, () =>
                 {
-                    GamePlayEvents.OnGameplayStatusChange?.Invoke(true);
+                    gamePlayEvents.OnGameplayStatusChange?.Invoke(true);
                 });
-            }
-            else
-            {
-                GamePlayEvents.OnGameplayStatusChange?.Invoke(true);
-                Debug.Log("next round !!");
-                
-                //currentSession.CreateRows(1, 80, false);
-                currentSession.NextTurn();
             }
         });
     }
@@ -142,8 +135,12 @@ public class GameManager : MonoBehaviour
     {
         Clear();
 
-        animationQuery = new AnimationQuery(gameSettings);
-        currentSession = new BubbleGame(width, height);
+        animationQuery = new AnimationQuery(animationSettings);
+        currentSession = new BubbleGame(gameSettings.GridSizeX,
+            gameSettings.GridSizeY,
+            gameSettings.StartingRowCount,
+            gameSettings.RowsAtPerTurn,
+            gameSettings.RowCrowdness);
 
         // Register outputs to the game.
         currentSession.GameEvents.OnActiveBallCreated += ActiveBallCreated;
@@ -160,10 +157,9 @@ public class GameManager : MonoBehaviour
         currentSession.GameEvents.OnReadyForVisualization += ReadyForVisualization;
         //
 
-        currentSession.CreateRows(2, 40, true);
         currentSession.NextTurn();
 
-        GamePlayEvents.OnGameplayStatusChange?.Invoke(true);
+        gamePlayEvents.OnGameplayStatusChange?.Invoke(true);
     }
 
     public void Clear()
@@ -176,6 +172,8 @@ public class GameManager : MonoBehaviour
                 obj.Value.gameObject.SetActive(false);
 
             spawneds.Clear();
+
+            currentSession.Dispose();
 
             currentSession = null;
         }
@@ -239,6 +237,12 @@ public class GameManager : MonoBehaviour
         Debug.Log("Ready for visualization.");
         StartCoroutine(animationQuery.DoQuery(() => {
             Debug.Log("Visualization completed.");
+
+            gamePlayEvents.OnGameplayStatusChange?.Invoke(true);
+            Debug.Log("next round !!");
+
+            //currentSession.CreateRows(1, 80, false);
+            currentSession.NextTurn();
         }));
     }
 
@@ -291,7 +295,7 @@ public class GameManager : MonoBehaviour
     private void NextBallBecomeActive ()
     {
         activeBall = nextBall;
-        activeBall.Move(activeBallPoint.position, gameSettings.PositionUpdateSpeed);
+        activeBall.Move(activeBallPoint.position, animationSettings.PositionUpdateSpeed);
         activeBall.Scale(Vector3.one * 0.8f);
 
         Debug.Log("Next ball become active!");
