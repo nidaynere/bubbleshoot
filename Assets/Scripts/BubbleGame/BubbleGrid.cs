@@ -50,10 +50,10 @@ namespace Bob
             }
         }
 
-        public List<Bubble> SeekForCombine(Vector position, out Bubble[] mixes, out int mixCount)
+        public List<Vector> SeekForCombine(Vector position, out Vector[] mixes, out int mixCount)
         {
             mixCount = 0;
-            mixes = new Bubble[dirCount];
+            mixes = new Vector[dirCount];
 
             OutputLog.AddLog("[Grid] Seeking for combine at position => " + position);
 
@@ -71,6 +71,7 @@ namespace Bob
             except.Add(position);
 
             var best = GetCombinations(cType, position, ref except);
+            best.Insert(0, position);
 
             // gathered mixes.
             mixCount = GetMixes(cType, position, mixes, best);
@@ -78,7 +79,7 @@ namespace Bob
             return best;
         }
 
-        private int GetMixes (Bubble.BubbleType type, Vector pivotPosition, Bubble[] mixes, List<Bubble> except)
+        private int GetMixes (Bubble.BubbleType type, Vector pivotPosition, Vector[] mixes, List<Vector> except)
         {
             int counter = 0;
             for (int i = 0; i < dirCount; i++)
@@ -94,10 +95,10 @@ namespace Bob
 
                 if (bubble.Numberos == type)
                 {
-                    if (!except.Contains(bubble))
+                    if (!except.Contains(cPosition))
                     {
                         OutputLog.AddLog("Found a sibling at => " + cPosition);
-                        mixes[counter++] = bubble;
+                        mixes[counter++] = cPosition;
                     }
                     else OutputLog.AddLog("Found a sibling at => " + cPosition + " but it was in the exceptions.");
                 }
@@ -107,17 +108,17 @@ namespace Bob
             return counter;
         }
 
-        private List<Bubble> GetCombinations (Bubble.BubbleType type, Vector pivotPosition, ref List<Vector> except)
+        private List<Vector> GetCombinations (Bubble.BubbleType type, Vector pivotPosition, ref List<Vector> except)
         {
             OutputLog.AddLog("Seeking at position => " + pivotPosition + ", type: " + type.ToString());
 
-            List<Bubble> final = new List<Bubble>();
+            List<Vector> final = new List<Vector>();
 
             for (int i = 0; i < dirCount; i++)
             {
                 OutputLog.AddLog("Direction => " + seekDirections[i]);
 
-                List<Bubble> points = new List<Bubble>();
+                List<Vector> points = new List<Vector>();
 
                 var cPosition = pivotPosition + seekDirections[i];
 
@@ -142,7 +143,7 @@ namespace Bob
                     OutputLog.AddLog("Found a sibling at => " + cPosition);
 
                     var newType = (Bubble.BubbleType)(int)type + 1;
-                    points.Add(bubble);
+                    points.Add(cPosition);
 
                     var go = GetCombinations(newType, cPosition, ref except);
                     points.AddRange(go);
@@ -160,7 +161,7 @@ namespace Bob
             return final;
         }
 
-        private Bubble GetFromPosition (Vector position)
+        public Bubble GetFromPosition (Vector position)
         {
             if (position.Y < 0 || position.Y >= Size.Y)
                 return null;
@@ -168,6 +169,21 @@ namespace Bob
                 return null;
 
             return grid[position.Y][position.X];
+        }
+
+        public bool RemoveFromPosition(Vector position)
+        {
+            if (position.Y < 0 || position.Y >= Size.Y)
+                return false;
+            if (position.X < 0 || position.X >= Size.X)
+                return false;
+
+            if (grid[position.Y][position.X] == null)
+                return false;
+
+            grid[position.Y][position.X] = null;
+
+            return true;
         }
 
         public bool FindClosePosition(Vector position, ref Vector result)

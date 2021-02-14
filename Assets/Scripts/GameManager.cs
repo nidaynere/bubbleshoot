@@ -61,12 +61,10 @@ public class GameManager : MonoBehaviour
         var direciton = (endPosition - positions[length - 2]).normalized;
         endPosition -= direciton;
 
-        Debug.Log(endPosition);
         // clamp by walls.
         endPosition.x = Mathf.Clamp(endPosition.x, wallXStart.position.x+1, wallXEnd.position.x-1);
         endPosition.y = Mathf.Clamp(endPosition.y, wallYStart.position.y+1, wallYEnd.position.y-1);
         //
-        Debug.Log("clamped " + endPosition);
 
         activeBall.Move(positions, gameSettings.BubbleThrowSpeed, () => {
             /*
@@ -118,6 +116,7 @@ public class GameManager : MonoBehaviour
         currentSession.GameEvents.OnBubbleValueUpdate += BubbleValueUpdate;
         currentSession.GameEvents.OnNextBallSpawned += NextBallSpawned;
         currentSession.GameEvents.OnNextBallBecomeActive += NextBallBecomeActive;
+        currentSession.GameEvents.OnBubbleExplode += BubbleExplode;
         //
 
         currentSession.CreateRows(2, 40, true);
@@ -163,12 +162,12 @@ public class GameManager : MonoBehaviour
 
     private void BubbleCombined (ushort Id, ushort tId)
     {
-        Debug.Log("Bubble {"+ Id +"} combined with Id => " +Id);
+        Debug.Log("Bubble {"+ Id +"} combined with Id => " +tId);
     }
 
     private void BubbleMixed(ushort Id, ushort tId)
     {
-        Debug.Log("Bubble {" + Id + "} mixed with Id => " + Id);
+        Debug.Log("Bubble {" + Id + "} mixed with Id => " + tId);
     }
 
     private void BubbleIsNowFree (ushort Id)
@@ -192,6 +191,11 @@ public class GameManager : MonoBehaviour
     private void BubbleValueUpdate (ushort Id, Bubble.BubbleType newType)
     {
         Debug.Log("BubbleValue update => " + Id + ", " + newType);
+    }
+
+    private void BubbleExplode (ushort Id)
+    {
+        Debug.Log("BubbleExplode => " + Id);
     }
 
     private void NextBallSpawned (Bubble bubble)

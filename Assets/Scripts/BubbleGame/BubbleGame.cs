@@ -124,23 +124,52 @@ namespace Bob
 
             GameEvents.OnBubblePositionUpdate?.Invoke (activeBubble.Id, X, Y, false);
 
-            Bubble[] mixes;
+            Vector[] mixes;
             int mixCount;
 
-            var bubbles = map.SeekForCombine(new Vector(X, Y), out mixes, out mixCount);
+            var combines = map.SeekForCombine(new Vector(X, Y), out mixes, out mixCount);
 
-            if (bubbles == null)
+            OutputLog.AddLog("combine count." + combines.Count);
+
+            if (combines.Count < 2)
             {
                 OutputLog.AddLog("no match.");
             }
             else
             {
-                // do the events.
-                foreach (var p in bubbles)
-                    OutputLog.AddLog("combine path member:" + p.Id + " " + p.Numberos);
+                var mixTarget = map.GetFromPosition (combines[0]); // first member of combinations will get mixes, and start to combine.
+                // first mix
+                for (int i = 0; i < mixCount; i++)
+                {
+                    OutputLog.AddLog("mixing:" + mixes[i] + " to " + mixTarget.Id);
+                    GameEvents.OnBubbleMixed(map.GetFromPosition(mixes[i]).Id, mixTarget.Id);
+                    map.RemoveFromPosition(mixes[i]);
+                }
 
-                for (int i=0; i<mixCount; i++)
-                    OutputLog.AddLog("mix member:" + mixes[i].Id + " " + mixes[i].Numberos);
+                int length = combines.Count;
+
+                for (int i = 0; i < length - 1; i++)
+                {
+                    var first = map.GetFromPosition(combines[i]);
+                    var next = map.GetFromPosition(combines[i + 1]);
+
+                    OutputLog.AddLog("combining: " + first.Id + " to " + next.Id);
+
+                    GameEvents.OnBubbleCombined (first.Id, next.Id);
+
+                    /// remove first.
+                    map.RemoveFromPosition(combines[i]);
+
+                    bool numberosIncrease = next.IncreaseNumberos();
+                    if (numberosIncrease)
+                    {
+                        GameEvents.OnBubbleValueUpdate(next.Id, next.Numberos);
+                    }
+                    else
+                    {
+                        GameEvents.OnBubbleExplode(next.Id);
+                    }
+                }
             }
         }
     }
