@@ -217,12 +217,17 @@ namespace Bob
 
                 int length = combines.Count;
 
+                for (int i = 0; i < length; i++)
+                {
+                    OutputLog.AddLog("combine member: " + combines[i]);
+                }
+                
                 for (int i = 0; i < length - 1; i++)
                 {
                     var first = map.GetFromPosition(combines[i]);
                     var next = map.GetFromPosition(combines[i + 1]);
 
-                    OutputLog.AddLog("combining: " + first.Id + " to " + next.Id);
+                    //OutputLog.AddLog("combining: " + first.Id + " to " + next.Id);
 
                     next.IncreaseNumberos();
 

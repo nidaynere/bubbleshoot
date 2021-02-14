@@ -251,7 +251,7 @@ public class GameManager : MonoBehaviour
             Debug.Log("next round !!");
 
             //currentSession.CreateRows(1, 80, false);
-            currentSession.NextTurn();
+            //currentSession.NextTurn();
         }));
     }
 

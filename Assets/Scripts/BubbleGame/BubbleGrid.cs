@@ -98,8 +98,10 @@ namespace Bob
             {
                 var cPosition = pivotPosition + seekDirections[i];
 
-                if (exceptThis.Contains (cPosition))
+                if (exceptThis.Contains(cPosition))
+                {
                     continue;
+                }
 
                 var bubble = GetFromPosition(cPosition);
                 if (bubble == null)
@@ -109,7 +111,9 @@ namespace Bob
 
                 if (bubble.Numberos == type)
                 {
-                    mixes.AddRange ( GetMixes(type, cPosition, exceptThis) );
+                    mixes.Add(cPosition);
+
+                    mixes.AddRange (GetMixes(type, cPosition, exceptThis));
                 }
             }
 
