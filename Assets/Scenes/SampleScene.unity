@@ -1321,6 +1321,21 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 0976354f8b518a942a38e741ab44f96c, type: 2}
+    - target: {fileID: 7883913367624213914, guid: 733365262bf89414fb672e98fe680fde,
+        type: 3}
+      propertyPath: m_Parameters.numCornerVertices
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7883913367624213914, guid: 733365262bf89414fb672e98fe680fde,
+        type: 3}
+      propertyPath: m_Parameters.numCapVertices
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7883913367624213914, guid: 733365262bf89414fb672e98fe680fde,
+        type: 3}
+      propertyPath: m_Parameters.textureMode
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7883913367881423365, guid: 733365262bf89414fb672e98fe680fde,
         type: 3}
       propertyPath: m_LocalScale.z
