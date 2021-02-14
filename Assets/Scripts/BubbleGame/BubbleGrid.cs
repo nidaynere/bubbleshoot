@@ -50,54 +50,74 @@ namespace Bob
             }
         }
 
-        public Bubble[] SeekForCombine(Vector position)
+        public List<Bubble> SeekForCombine(Vector position, out Bubble[] mixes, out int mixCount)
         {
+            mixCount = 0;
+            mixes = new Bubble[dirCount];
+
             OutputLog.AddLog("[Grid] Seeking for combine at position => " + position);
 
             var bubble = GetFromPosition(position);
             if (bubble == null)
             {
                 OutputLog.AddError("[Grid] No bubble at this position to start seeking => " + position);
+                return null;
             }
-
-            OutputLog.AddLog("[Grid] Seeking started at position " + position + " with bubble type => " + bubble.Numberos.ToString());
-
             var cType = bubble.Numberos;
+
+            OutputLog.AddLog("[Grid] Seeking started at position " + position + " with bubble type => " + cType);
+
             List<Vector> except = new List<Vector>();
             except.Add(position);
 
             var best = GetCombinations(cType, position, ref except);
 
-            int pathCount = best.Count;
+            // gathered mixes.
+            mixCount = GetMixes(cType, position, mixes, best);
 
-            if (pathCount > 0)
-            {
-                Bubble[] bubbles = new Bubble[pathCount+1];
-                bubbles[0] = bubble;
-
-                for (int i = 0; i < pathCount; i++)
-                    bubbles[i+1] = GetFromPosition(best[i]);
-
-                OutputLog.AddLog("[Grid] Combine result length => " + best.Count.ToString());
-
-                return bubbles;
-
-            }
-
-            return null;
+            return best;
         }
 
-        private List<Vector> GetCombinations (Bubble.BubbleType type, Vector pivotPosition, ref List<Vector> except)
+        private int GetMixes (Bubble.BubbleType type, Vector pivotPosition, Bubble[] mixes, List<Bubble> except)
+        {
+            int counter = 0;
+            for (int i = 0; i < dirCount; i++)
+            {
+                var cPosition = pivotPosition + seekDirections[i];
+
+                var bubble = GetFromPosition(cPosition);
+                if (bubble == null)
+                {
+                    OutputLog.AddLog("No bubble at this pos => " + cPosition);
+                    continue;
+                }
+
+                if (bubble.Numberos == type)
+                {
+                    if (!except.Contains(bubble))
+                    {
+                        OutputLog.AddLog("Found a sibling at => " + cPosition);
+                        mixes[counter++] = bubble;
+                    }
+                    else OutputLog.AddLog("Found a sibling at => " + cPosition + " but it was in the exceptions.");
+                }
+                else OutputLog.AddLog("No sibling at this position => " + cPosition);
+            }
+
+            return counter;
+        }
+
+        private List<Bubble> GetCombinations (Bubble.BubbleType type, Vector pivotPosition, ref List<Vector> except)
         {
             OutputLog.AddLog("Seeking at position => " + pivotPosition + ", type: " + type.ToString());
 
-            List<Vector> final = new List<Vector>();
+            List<Bubble> final = new List<Bubble>();
 
             for (int i = 0; i < dirCount; i++)
             {
                 OutputLog.AddLog("Direction => " + seekDirections[i]);
 
-                List<Vector> points = new List<Vector>();
+                List<Bubble> points = new List<Bubble>();
 
                 var cPosition = pivotPosition + seekDirections[i];
 
@@ -122,7 +142,7 @@ namespace Bob
                     OutputLog.AddLog("Found a sibling at => " + cPosition);
 
                     var newType = (Bubble.BubbleType)(int)type + 1;
-                    points.Add(cPosition);
+                    points.Add(bubble);
 
                     var go = GetCombinations(newType, cPosition, ref except);
                     points.AddRange(go);

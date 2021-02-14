@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Bob
 {
@@ -123,7 +124,10 @@ namespace Bob
 
             GameEvents.OnBubblePositionUpdate?.Invoke (activeBubble.Id, X, Y, false);
 
-            var bubbles = map.SeekForCombine(new Vector(X, Y));
+            Bubble[] mixes;
+            int mixCount;
+
+            var bubbles = map.SeekForCombine(new Vector(X, Y), out mixes, out mixCount);
 
             if (bubbles == null)
             {
@@ -131,9 +135,12 @@ namespace Bob
             }
             else
             {
+                // do the events.
                 foreach (var p in bubbles)
-                    OutputLog.AddLog("bubble:" + p.Id + " " + p.Numberos);
+                    OutputLog.AddLog("combine path member:" + p.Id + " " + p.Numberos);
 
+                for (int i=0; i<mixCount; i++)
+                    OutputLog.AddLog("mix member:" + mixes[i].Id + " " + mixes[i].Numberos);
             }
         }
     }
