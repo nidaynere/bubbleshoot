@@ -233,10 +233,16 @@ public class GameManager : MonoBehaviour
             );
     }
 
+    public GameObject visualizeButton;
     private void ReadyForVisualization()
     {
         Debug.Log("Ready for visualization.");
+        visualizeButton.SetActive
+             (true);
+    }
 
+    public void visu()
+    {
         StartCoroutine(animationQuery.DoQuery(() => {
             Debug.Log("Visualization completed.");
         }));
@@ -249,7 +255,6 @@ public class GameManager : MonoBehaviour
 
     private void BubblePositionUpdate (ushort Id, int X, int Y, bool IsInstant)
     {
-        Debug.Log("Ball posiiton update at " + Id + " is instant: " + IsInstant);
         if (spawneds.ContainsKey(Id))
         {
             if (IsInstant)
