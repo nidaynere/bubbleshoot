@@ -67,10 +67,7 @@ namespace Bob
 
             OutputLog.AddLog("[Grid] Seeking started at position " + position + " with bubble type => " + cType);
 
-            List<Vector> except = new List<Vector>();
-            except.Add(position);
-
-            var best = GetCombinations(cType, position, ref except);
+            var best = GetCombinations(cType, position);
             best.Insert(0, position);
 
             // gathered mixes.
@@ -108,7 +105,7 @@ namespace Bob
             return counter;
         }
 
-        private List<Vector> GetCombinations (Bubble.BubbleType type, Vector pivotPosition, ref List<Vector> except)
+        private List<Vector> GetCombinations (Bubble.BubbleType type, Vector pivotPosition)
         {
             OutputLog.AddLog("Seeking at position => " + pivotPosition + ", type: " + type.ToString());
 
@@ -122,21 +119,12 @@ namespace Bob
 
                 var cPosition = pivotPosition + seekDirections[i];
 
-                if (except != null && except.Contains(cPosition))
-                {
-                    // except this.
-                    OutputLog.AddLog("Already seeked that position before => " + cPosition);
-                    continue;
-                }
-
                 var bubble = GetFromPosition(cPosition);
                 if (bubble == null)
                 {
                     OutputLog.AddLog("No bubble at this pos => " + cPosition);
                     continue;
                 }
-
-                except.Add(cPosition);
 
                 if (bubble.Numberos == type)
                 {
@@ -145,7 +133,7 @@ namespace Bob
                     var newType = (Bubble.BubbleType)(int)type + 1;
                     points.Add(cPosition);
 
-                    var go = GetCombinations(newType, cPosition, ref except);
+                    var go = GetCombinations(newType, cPosition);
                     points.AddRange(go);
                 }
                 else OutputLog.AddLog("No sibling at this position => " + cPosition);
