@@ -50,7 +50,7 @@ namespace Bob
             }
         }
 
-        public List<Vector> SeekForCombine (Vector position)
+        public Bubble[] SeekForCombine(Vector position)
         {
             OutputLog.AddLog("[Grid] Seeking for combine at position => " + position);
 
@@ -68,9 +68,23 @@ namespace Bob
 
             var best = GetCombinations(cType, position, ref except);
 
-            OutputLog.AddLog("[Grid] Combine result length => " + best.Count.ToString());
+            int pathCount = best.Count;
 
-            return best;
+            if (pathCount > 0)
+            {
+                Bubble[] bubbles = new Bubble[pathCount+1];
+                bubbles[0] = bubble;
+
+                for (int i = 0; i < pathCount; i++)
+                    bubbles[i+1] = GetFromPosition(best[i]);
+
+                OutputLog.AddLog("[Grid] Combine result length => " + best.Count.ToString());
+
+                return bubbles;
+
+            }
+
+            return null;
         }
 
         private List<Vector> GetCombinations (Bubble.BubbleType type, Vector pivotPosition, ref List<Vector> except)
@@ -205,7 +219,7 @@ namespace Bob
         public int GetBubblesAtRow (int rowIndex, int xLength, ref Bubble[] bubbles, ref Vector[] positions)
         {
             if (rowIndex >= Size.Y)
-                rowIndex = Size.Y - 1;
+                return 0;
 
             int counter = 0;
 
@@ -213,8 +227,6 @@ namespace Bob
             {
                 if (grid[rowIndex][x] != null)
                 {
-                    OutputLog.AddLog(counter.ToString());
-
                     bubbles[counter] = grid[rowIndex][x];
                     positions[counter] = new Vector(x, rowIndex);
                     counter++;

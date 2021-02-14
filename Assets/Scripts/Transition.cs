@@ -37,10 +37,6 @@ public class Transition : MonoBehaviour
         int pathCount = target.Length;
         int currentPath = 0;
 
-        float curveSplitter = 1f / pathCount;
-
-        Debug.Log("Curvesplitter " + curveSplitter);
-
         bool isInTransition = false;
         while (true)
         {

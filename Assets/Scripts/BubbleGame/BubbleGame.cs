@@ -7,7 +7,6 @@ namespace Bob
 #if UNITY_EDITOR
         public BubbleGrid GetMap => map;
 #endif
-
         public BubbleEvents GameEvents;
         private BubbleGrid map;
         private ushort idCounter;
@@ -80,10 +79,8 @@ namespace Bob
                 map.AddBubbles(bubbles);
 
                 int f_count = map.GetBubblesAtRow(1, mapSizeX, ref f_bubbles, ref f_positions);
-                OutputLog.AddLog(f_count.ToString());
                 for (int f = 0; f < f_count; f++)
                 {
-                    OutputLog.AddLog(f_bubbles[f].Id + " " + f_positions[f]);
                     GameEvents.OnBubblePositionUpdate?.Invoke(f_bubbles[f].Id, f_positions[f].X, f_positions[f].Y, isInstant);
                 }
             }
@@ -126,12 +123,18 @@ namespace Bob
 
             GameEvents.OnBubblePositionUpdate?.Invoke (activeBubble.Id, X, Y, false);
 
-            var points = map.SeekForCombine(new Vector(X, Y));
+            var bubbles = map.SeekForCombine(new Vector(X, Y));
 
-            foreach (var p in points)
-                OutputLog.AddLog("match found: " + X + " " + Y);
+            if (bubbles == null)
+            {
+                OutputLog.AddLog("no match.");
+            }
+            else
+            {
+                foreach (var p in bubbles)
+                    OutputLog.AddLog("bubble:" + p.Id + " " + p.Numberos);
 
-            OutputLog.AddLog("match end");
+            }
         }
     }
 }

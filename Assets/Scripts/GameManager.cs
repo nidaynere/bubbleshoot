@@ -4,15 +4,15 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] Transform holder;
-    [SerializeField] GameBall gameBall;
-    [SerializeField] int poolSize;
-    [SerializeField] Shooter shooter;
-    [SerializeField] int width, height;
-    [SerializeField] GamePlayEvents GamePlayEvents;
-    [SerializeField] GameSettings gameSettings;
-
-    [SerializeField] Transform activeBallPoint, nextBallPoint;
+    [SerializeField] private Transform holder;
+    [SerializeField] private GameBall gameBall;
+    [SerializeField] private int poolSize;
+    [SerializeField] private Shooter shooter;
+    [SerializeField] private int width, height;
+    [SerializeField] private GamePlayEvents GamePlayEvents;
+    [SerializeField] private GameSettings gameSettings;
+    [SerializeField] private Transform activeBallPoint, nextBallPoint;
+    [SerializeField] private Transform wallXStart, wallXEnd, wallYStart, wallYEnd;
 
     private GameBall activeBall, nextBall;
 
@@ -57,14 +57,28 @@ public class GameManager : MonoBehaviour
 
         GamePlayEvents.OnGameplayStatusChange?.Invoke(false);
 
-        var lastPosition = positions[length - 1];
+        var endPosition = positions[length - 1];
+        var direciton = (endPosition - positions[length - 2]).normalized;
+        endPosition -= direciton;
+
+        Debug.Log(endPosition);
+        // clamp by walls.
+        endPosition.x = Mathf.Clamp(endPosition.x, wallXStart.position.x+1, wallXEnd.position.x-1);
+        endPosition.y = Mathf.Clamp(endPosition.y, wallYStart.position.y+1, wallYEnd.position.y-1);
+        //
+        Debug.Log("clamped " + endPosition);
 
         activeBall.Move(positions, gameSettings.BubbleThrowSpeed, () => {
-            lastPosition = holder.InverseTransformPoint(lastPosition);
-            lastPosition.y *= -1;
+            /*
+             * Convert this position to Bubble grid.
+             * */
+            endPosition = holder.InverseTransformPoint(endPosition);
+            endPosition.y *= -1;
+            /*
+             * */
             
-            int x = Mathf.RoundToInt(lastPosition.x);
-            int y = Mathf.RoundToInt(lastPosition.y);
+            int x = Mathf.RoundToInt(endPosition.x);
+            int y = Mathf.RoundToInt(endPosition.y);
 
             // Trigger game.
             var result = currentSession.GameEvents.RequestPutBubble(x, y, true);
