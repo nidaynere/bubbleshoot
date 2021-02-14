@@ -122,10 +122,16 @@ namespace Bob
 
         private void CheckForMatch(int X, int Y)
         {
+            OutputLog.AddLog("checking for match at " + X + " " + Y);
+
             GameEvents.OnBubblePositionUpdate?.Invoke (activeBubble.Id, X, Y, false);
 
-            map.SeekForCombine(new Vector(X, Y));
-            //throw new System.NotImplementedException();
+            var points = map.SeekForCombine(new Vector(X, Y));
+
+            foreach (var p in points)
+                OutputLog.AddLog("match found: " + X + " " + Y);
+
+            OutputLog.AddLog("match end");
         }
     }
 }

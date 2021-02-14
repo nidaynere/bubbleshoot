@@ -4,7 +4,7 @@ using System.Collections;
 
 public class Transition : MonoBehaviour
 {
-    [SerializeField] private GameSettings gameSettings;
+    [SerializeField] protected GameSettings gameSettings;
 
     private Coroutine currentTransition;
 

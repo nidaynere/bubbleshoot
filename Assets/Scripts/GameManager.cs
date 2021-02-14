@@ -119,22 +119,17 @@ public class GameManager : MonoBehaviour
         activeBall = SpawnBall(bubble, pos, 0.8f);
     }
 
-    private Vector3 getGridPosition(int X, int Y)
-    {
-        return new Vector3(X, -Y + X % 2 * 0.1f);
-    }
-
-
     private void BubbleSpawned (Bubble bubble, int X, int Y)
     {
-        var pos = getGridPosition(X, Y);
-        SpawnBall(bubble, pos, 0.8f);
+        SpawnBall(bubble, X, Y, 0.8f);
     }
 
-    private GameBall SpawnBall(Bubble bubble, Vector3 pos, float scale = 1)
+    private GameBall SpawnBall(Bubble bubble, int X, int Y, float scale = 1)
     {
         var gameBall = pool.Get();
-        gameBall.transform.localPosition = pos;
+
+        gameBall.SetPosition(X, Y);
+
         gameBall.transform.localScale = Vector3.one * scale;
         gameBall.bubble = bubble;
 
@@ -142,6 +137,13 @@ public class GameManager : MonoBehaviour
 
         spawneds.Add(bubble.Id, gameBall);
 
+        return gameBall;
+    }
+
+    private GameBall SpawnBall(Bubble bubble, Vector3 pos, float scale = 1)
+    {
+        var gameBall = SpawnBall(bubble, 0, 0, scale);
+        gameBall.transform.localPosition = pos;
         return gameBall;
     }
 
@@ -162,15 +164,12 @@ public class GameManager : MonoBehaviour
 
     private void BubblePositionUpdate (ushort Id, int X, int Y, bool IsInstant)
     {
+        Debug.Log("Ball posiiton update at " + Id + " is instant: " + IsInstant);
         if (spawneds.ContainsKey(Id))
         {
-            var targetPosition = holder.TransformPoint(getGridPosition(X, Y));
-            
             if (IsInstant)
-                spawneds[Id].transform.position = targetPosition;
-            else
-            
-            spawneds[Id].Move(targetPosition, gameSettings.PositionUpdateSpeed);
+                spawneds[Id].SetPosition(X, Y);
+            else spawneds[Id].SetTransition(X, Y);
         }
 
         Debug.Log("Bubble position update => " + Id + " X="+ X + " Y=" + Y);

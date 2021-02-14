@@ -50,7 +50,7 @@ namespace Bob
             }
         }
 
-        public void SeekForCombine (Vector position)
+        public List<Vector> SeekForCombine (Vector position)
         {
             OutputLog.AddLog("[Grid] Seeking for combine at position => " + position);
 
@@ -68,7 +68,9 @@ namespace Bob
 
             var best = GetCombinations(cType, position, ref except);
 
-            OutputLog.AddLog("[Grid] Combine result length => " + best.Count.ToString ());
+            OutputLog.AddLog("[Grid] Combine result length => " + best.Count.ToString());
+
+            return best;
         }
 
         private List<Vector> GetCombinations (Bubble.BubbleType type, Vector pivotPosition, ref List<Vector> except)
