@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
 
+[System.Serializable]
 public struct AnimationQuery
 {
     private GameSettings gameSettings;
@@ -27,36 +28,37 @@ public struct AnimationQuery
             yield break;
         }
 
-        bool animFinished = false;
+        Debug.Log("DoQuery");
         bool isPlaying = false;
         while (true)
         {
-            if (isPlaying)
+            while (isPlaying)
             {
                 yield return new WaitForSeconds(gameSettings.CombineAnimationDelay);
             }
 
-            if (animFinished)
-            {
-                animFinished = false;
-                Query.RemoveAt(0);
+            if (Query.Count == 0)
+            {// Done
+                Debug.Log("Animation query => completed.");
 
-                if (Query.Count == 0)
-                {// Done
-                    onCompleted?.Invoke();
-                    break;
-                }
+                onCompleted?.Invoke();
+                yield break;
             }
 
             isPlaying = true;
 
+            Debug.Log("Animation query => started anim.");
+
             Query[0].Trigger(gameSettings, () => {
-                animFinished = true;
-                isPlaying = false; 
+                Debug.Log("Animation query => finished anim.");
+                isPlaying = false;
             });
+
+            Query.RemoveAt(0);
         }
     }
 
+    [System.Serializable]
     public class BaseAction
     {
         protected GameBall ballFrom, ballTo;
@@ -69,7 +71,7 @@ public struct AnimationQuery
 
         public virtual void Trigger(GameSettings gameSettings, Action onCompleted) { }
     }
-
+    [System.Serializable]
     public class CombineAction : BaseAction
     {
         public CombineAction (GameBall _ballFrom, GameBall _ballTo) : base (_ballFrom, _ballTo)
@@ -89,7 +91,7 @@ public struct AnimationQuery
             });
         }
     }
-
+    [System.Serializable]
     public class MixAction : BaseAction
     {
         public MixAction(GameBall _ballFrom, GameBall _ballTo) : base(_ballFrom, _ballTo)

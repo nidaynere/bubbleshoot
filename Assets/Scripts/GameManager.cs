@@ -233,16 +233,9 @@ public class GameManager : MonoBehaviour
             );
     }
 
-    public GameObject visualizeButton;
     private void ReadyForVisualization()
     {
         Debug.Log("Ready for visualization.");
-        visualizeButton.SetActive
-             (true);
-    }
-
-    public void visu()
-    {
         StartCoroutine(animationQuery.DoQuery(() => {
             Debug.Log("Visualization completed.");
         }));
