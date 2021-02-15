@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class MouseInput
+public class Input : MonoBehaviour
 {
     public delegate void InputEvent (Vector2 vector2);
 
@@ -41,14 +41,34 @@ public class MouseInput
     private InputEvent OnUp;
     #endregion
 
-    public void Update()
+    private void Update()
     {
         if (EventSystem.current.IsPointerOverGameObject())
             return;
 
-        Vector2 position = Input.mousePosition;
+        bool isMouseDown = false;
+        Vector2 position;
+        bool isMouseUp = false;
+        bool isTouching = false;
 
-        bool isMouseDown = Input.GetMouseButtonDown(0);
+        if (UnityEngine.Input.touchCount > 0)
+        {
+            if (UnityEngine.Input.touches[0].phase == TouchPhase.Began)
+                isMouseDown = true;
+            else if (UnityEngine.Input.touches[0].phase == TouchPhase.Ended)
+                isMouseUp = true;
+            else if (UnityEngine.Input.touches[0].phase == TouchPhase.Moved)
+                isTouching = true;
+
+            position = UnityEngine.Input.GetTouch(0).position;
+        }
+        else
+        {
+            position = UnityEngine.Input.mousePosition;
+            isMouseDown = UnityEngine.Input.GetMouseButtonDown(0);
+            isMouseUp = UnityEngine.Input.GetMouseButtonUp(0);
+            isTouching = UnityEngine.Input.GetMouseButton(0);
+        }
 
         if (isMouseDown)
         {
@@ -56,11 +76,10 @@ public class MouseInput
             OnDown?.Invoke(position);
         }
 
-        bool isMouseUp = Input.GetMouseButtonUp(0);
         if (isMouseUp)
             OnUp?.Invoke(position);
 
-        if (Input.GetMouseButton (0))
+        if (isTouching)
         {
             if (position != lastPosition)
             {

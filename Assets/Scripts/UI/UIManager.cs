@@ -13,6 +13,8 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        Application.targetFrameRate = 60;
+
         gamePlayEvents.OnGameStarted += GameStarted;
         gamePlayEvents.OnGameOver += GameOver;
         gamePlayEvents.OnScoreUpdate += ScoreUpdate;

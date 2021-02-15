@@ -18,6 +18,7 @@ public class Shooter : MonoBehaviour
     /// </summary>
     [SerializeField] private Transform focusPoint;
     [SerializeField] private GamePlayEvents inputEvents;
+    [SerializeField] private Input mouseInput;
     #endregion
 #pragma warning restore CS0649
 
@@ -25,30 +26,20 @@ public class Shooter : MonoBehaviour
     private Vector3[] positions = new Vector3[maxCrosses + 2]; // 2 means start & end position
     private int positionCount;
 
-    private bool inputEnabled = false;
-    private MouseInput mouseInput;
-
     private bool inputActive;
     
     void Start()
     {
-        mouseInput = new MouseInput();
         mouseInput.RegisterInput(OnInputHoldAndMove, OnInputDown, OnInputUp);
 
         inputEvents.OnGameplayStatusChange += (value) => {
-            inputEnabled = value;
+            mouseInput.enabled = value;
 
             if (!value && inputActive)
             {
                 OnInputUp (Vector2.zero);
             }
         };
-    }
-
-    private void Update()
-    {
-        if (inputEnabled)
-        mouseInput.Update(); // keep input listener in loop
     }
 
     private Vector2 getAimDirection(ref Vector2 position)
