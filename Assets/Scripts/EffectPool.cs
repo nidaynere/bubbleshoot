@@ -4,39 +4,80 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "EffectPool", menuName = "EffectPool", order = 1)]
 public class EffectPool : ScriptableObject
 {
-    public struct Effect : System.ICloneable
+    public struct Pool
     {
-        public object Clone()
+        private struct Effect
         {
-            return MemberwiseClone();
+            private Transform main;
+            private AudioPlayer[] audioPlayers;
+            private ParticleSystem[] particleSystems;
+
+            public Effect(Transform target)
+            {
+                main = target;
+                audioPlayers = target.GetComponentsInChildren<AudioPlayer>(true);
+                particleSystems = target.GetComponentsInChildren<ParticleSystem>(true);
+            }
+
+            public void Play(Vector3 position)
+            {
+                main.position = position;
+
+                foreach (var audio in audioPlayers)
+                    audio.Play();
+
+                foreach (var particle in particleSystems)
+                    particle.Play();
+            }
         }
 
-        public Effect(Transform target)
+        private int step;
+        private Effect[] effects;
+        private int size;
+
+        public Pool(Transform holder, Transform t, int size)
         {
-            main = target;
-            audioSources = target.GetComponentsInChildren<AudioSource>(true);
-            particleSystems = target.GetComponentsInChildren<ParticleSystem>(true);
+            this.size = size;
+
+            step = 0;
+            effects = new Effect[size];
+
+            for (int i = 0; i < size; i++)
+            {
+                effects[i] = new Effect(Instantiate(t, holder));
+            }
         }
 
-        private Transform main;
-        private AudioSource[] audioSources;
-        private ParticleSystem[] particleSystems;
+        public void Play(Vector3 position)
+        {
+            effects[step].Play(position);
+            step++;
+            if (step > size)
+                step = 0;
+        }
     }
 
     public Transform[] Effects;
 
-    private Dictionary<string, Effect[]> pool = new Dictionary<string, Effect[]>();
+    private Dictionary<string, Pool> pool = new Dictionary<string, Pool>();
 
     public void Create(Transform holder, int poolSize)
     {
         foreach (var e in Effects)
         {
-            pool.Add(e.name, new Effect[poolSize]);
+            pool.Add(e.name, new Pool(holder, e, poolSize));
+        }
+    }
 
-            for (int i = 0; i < poolSize; i++)
-            {
-                
-            }
+    public void Play(string effectName, Vector3 position)
+    {
+        if (pool.ContainsKey(effectName))
+        {
+            pool[effectName].Play(position);
+        }
+        else
+        {
+            Debug.LogWarning("Effect is not found with that name => " + effectName);
         }
     }
 }
