@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   effects:
   - {fileID: 5402272177005354117, guid: afa4f3c9624751d4e8cda0ab2ba616ef, type: 3}
-  poolSize: 10
+  poolSize: 4
