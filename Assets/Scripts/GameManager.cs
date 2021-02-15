@@ -54,6 +54,7 @@ public class GameManager : MonoBehaviour
             gameSettings.RowsAtPerTurn,
             gameSettings.RowCrowdness);
 
+        gridRenderer.transform.localPosition = new Vector3((gameSettings.GridSizeX-1) / 2f, -(gameSettings.GridSizeY - 1) / 2f, 0.01f);
         gridRenderer.transform.localScale = new Vector3(gameSettings.GridSizeX, gameSettings.GridSizeY);
         gridRenderer.material.SetVector("_Tiling", gridRenderer.transform.localScale);
 
