@@ -57,13 +57,15 @@ public class EffectPool : ScriptableObject
         }
     }
 
-    public Transform[] Effects;
+    [SerializeField] public Transform[] effects;
+
+    [SerializeField] private int poolSize = 10;
 
     private Dictionary<string, Pool> pool = new Dictionary<string, Pool>();
 
-    public void Create(Transform holder, int poolSize)
+    public void Create(Transform holder)
     {
-        foreach (var e in Effects)
+        foreach (var e in effects)
         {
             pool.Add(e.name, new Pool(holder, e, poolSize));
         }

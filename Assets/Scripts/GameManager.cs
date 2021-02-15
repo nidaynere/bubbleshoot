@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] private EffectPool effectPool;
     [SerializeField] private Transform holder;
     [SerializeField] private GameBall gameBall;
     [SerializeField] private int poolSize;
@@ -19,7 +20,7 @@ public class GameManager : MonoBehaviour
 
     private Dictionary<ushort, GameBall> spawneds = new Dictionary<ushort, GameBall>();
 
-    private Pool pool;
+    private Pool ballPool;
 
 #if UNITY_EDITOR
     private void OnGUI()
@@ -46,7 +47,8 @@ public class GameManager : MonoBehaviour
 
     public void Start()
     {
-        pool = new Pool(holder, gameBall, poolSize);
+        ballPool = new Pool(holder, gameBall, poolSize);
+        effectPool.Create(holder);
 
         shooter.OnShoot += UserShoot;
         shooter.OnAim += UserAim;
@@ -60,24 +62,21 @@ public class GameManager : MonoBehaviour
         if (length == 0)
             return;
 
-        var endPosition = FixEndPoint(positions, length);
-
-        debugger.position = endPosition;
-
-        endPosition = holder.InverseTransformPoint(endPosition);
-        endPosition.y *= -1;
-
-        int x = Mathf.RoundToInt(endPosition.x);
-        int y = Mathf.RoundToInt(endPosition.y);
-
-        Vector result;
-        if (currentSession.GameEvents.RequestAvailablePosition(x, y, out result))
+        if (FixEndPoint(positions, length, out int x, out int y))
         {
-            debugger.localPosition = new Vector3(result.X, -result.Y);
+            debugger.localPosition = new Vector3(x, -y);
         }
     }
 
-    private Vector3 FixEndPoint (Vector3[] positions, int length)
+    /// <summary>
+    /// Takes the direction of the end position on the given positions. Sends it to the system, and get the proper point on 2d grid.
+    /// </summary>
+    /// <param name="positions">positions</param>
+    /// <param name="length">length of positions</param>
+    /// <param name="X"></param>
+    /// <param name="Y"></param>
+    /// <returns></returns>
+    private bool FixEndPoint (Vector3[] positions, int length, out int X, out int Y)
     {
         var endPosition = positions[length - 1];
         var direciton = (endPosition - positions[length - 2]).normalized;
@@ -87,7 +86,23 @@ public class GameManager : MonoBehaviour
         endPosition.x = Mathf.Clamp(endPosition.x, wallXStart.position.x + 1, wallXEnd.position.x - 1);
         endPosition.y = Mathf.Clamp(endPosition.y, wallYStart.position.y + 1, wallYEnd.position.y - 1);
         //
-        return endPosition;
+
+        endPosition = holder.InverseTransformPoint(endPosition);
+        endPosition.y *= -1;
+
+        X = Mathf.RoundToInt(endPosition.x);
+        Y = Mathf.RoundToInt(endPosition.y);
+
+        Vector result;
+        if (currentSession.GameEvents.RequestAvailablePosition(X, Y, out result))
+        {
+            X = result.X;
+            Y = result.Y;
+
+            return true;
+        }
+
+        return false;
     }
 
     private void UserShoot(Vector3[] positions)
@@ -98,33 +113,35 @@ public class GameManager : MonoBehaviour
 
         gamePlayEvents.OnGameplayStatusChange?.Invoke(false);
 
-        var endPosition = FixEndPoint(positions, length);
+        if (FixEndPoint(positions, length, out int x, out int y))
+        {
+            var fix = new Vector3(x, -y); // fix end of the position.
 
-        activeBall.Move(positions, animationSettings.BubbleThrowSpeed, () => {
-            /*
-             * Convert this position to Bubble grid.
-             * */
-            endPosition = holder.InverseTransformPoint(endPosition);
-            endPosition.y *= -1;
-            /*
-             * */
-            
-            int x = Mathf.RoundToInt(endPosition.x);
-            int y = Mathf.RoundToInt(endPosition.y);
+            positions[length - 1] = holder.TransformPoint(fix);
 
-            // Trigger game.
-            var result = currentSession.GameEvents.RequestPutBubble(x, y);
-
-            if (!result)
+            activeBall.Move(positions, animationSettings.BubbleThrowSpeed, () =>
             {
-                Debug.LogError("Bubble game doesnt accept our position replacement. Try again or contact with the developer at freak99@gmail.com");
+                // Trigger game.
+                var result = currentSession.GameEvents.RequestPutBubble(x, y);
 
-                activeBall.Move(activeBallPoint.position, animationSettings.BubbleThrowSpeed, () =>
+                if (!result)
                 {
-                    gamePlayEvents.OnGameplayStatusChange?.Invoke(true);
-                });
-            }
-        });
+                    Debug.LogError("Bubble game doesnt accept our position replacement. Try again or contact with the developer at freak99@gmail.com");
+
+                    activeBall.Move(activeBallPoint.position, animationSettings.BubbleThrowSpeed, () =>
+                    {
+                        gamePlayEvents.OnGameplayStatusChange?.Invoke(true);
+                    });
+                }
+            });
+        }
+        else
+        {
+            activeBall.Move(activeBallPoint.position, animationSettings.BubbleThrowSpeed, () =>
+            {
+                gamePlayEvents.OnGameplayStatusChange?.Invoke(true);
+            });
+        }
     }
 
     private BubbleGame currentSession;
@@ -203,7 +220,7 @@ public class GameManager : MonoBehaviour
 
     private GameBall SpawnBall(Bubble bubble, int X, int Y, float scale = 1)
     {
-        var gameBall = pool.Get();
+        var gameBall = ballPool.Get();
 
         gameBall.SetPosition(X, Y);
 

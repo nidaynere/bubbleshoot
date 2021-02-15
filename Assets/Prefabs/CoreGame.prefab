@@ -282,6 +282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6d339925a5b7e94c976229785a1de6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effectPool: {fileID: 11400000, guid: 7620693927405b746965f55bd3929176, type: 2}
   holder: {fileID: 3000941344369314811}
   gameBall: {fileID: 2509065972349790957, guid: 464ad1a0bf2724f4ebda8474afcbbb2b,
     type: 3}

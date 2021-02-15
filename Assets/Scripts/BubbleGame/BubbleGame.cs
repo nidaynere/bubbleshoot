@@ -257,6 +257,8 @@ namespace Bob
         /// <param name="gonnaExplode"></param>
         private void ExplodeThisPoints (List<Vector> gonnaExplode)
         {
+            OutputLog.AddLog("[BubbleGame] ExplodeThisPoints => " + gonnaExplode.Count);
+
             int count = gonnaExplode.Count;
             Vector[] around = new Vector[BubbleGrid.DirectionCount + 1];
 
