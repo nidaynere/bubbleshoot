@@ -30,30 +30,7 @@ public class GameManager : MonoBehaviour
     private BubbleGame currentSession;
 
     private AnimationQuery animationQuery;
-    /*
 
-#if UNITY_EDITOR
-    private void OnGUI()
-    {
-        if (currentSession == null)
-            return;
-        var grid = currentSession.GetMap.GetGrid;
-        int length = grid.Length;
-        const float size = 50;
-        for (int i = 0; i < length; i++)
-        {
-            int xSize = grid[i].Length;
-
-            for (int x = 0; x < xSize; x++)
-            {
-                var obj = grid[i][x];
-                GUI.color = obj == null ? Color.green : Color.red;
-                GUI.Box(new Rect(x * size, i * size, size, size), obj != null ? obj.Id.ToString () : "");
-            }
-        }
-    }
-#endif
-    */
     private void Start()
     {
         ballPool = new Pool(holder, gameBall, poolSize);
@@ -104,6 +81,8 @@ public class GameManager : MonoBehaviour
         //
 
         gamePlayEvents.OnGameStarted?.Invoke();
+
+        gamePlayEvents.OnScoreUpdate?.Invoke(0);
 
         currentSession.NextTurn();
 
