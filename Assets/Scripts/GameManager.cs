@@ -154,6 +154,7 @@ public class GameManager : MonoBehaviour
         currentSession.GameEvents.OnNextBallSpawned += NextBallSpawned;
         currentSession.GameEvents.OnNextBallBecomeActive += NextBallBecomeActive;
         currentSession.GameEvents.OnReadyForVisualization += ReadyForVisualization;
+        currentSession.GameEvents.OnBubbleExploded += BubbleExploded;
 
         // Bubble<-->GamePlayEvents
         currentSession.GameEvents.OnGameScoreUpdate += (int value) => { gamePlayEvents.OnScoreUpdate?.Invoke(value); };
@@ -257,8 +258,17 @@ public class GameManager : MonoBehaviour
 
     private void BubbleIsNowFree (ushort Id)
     {
+        // todo fly away animation
         Debug.Log("Bubble is now free, fly away => " + Id);
-    } 
+    }
+
+    private void BubbleExploded (int X, int Y, ushort[] Ids)
+    {
+        // add effect this position.
+        // shake the screen.
+
+        Debug.Log("Bubble exploded at => " + X +  ", " + Y);
+    }
 
     private void BubblePositionUpdate (ushort Id, int X, int Y, bool IsInstant)
     {

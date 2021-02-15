@@ -8,7 +8,7 @@ namespace Bob
         public Bubble[][] GetGrid => grid;
 #endif
 
-        const int dirCount = 8;
+        public const int DirectionCount = 8;
 
         private Bubble[][] grid;
 
@@ -48,6 +48,29 @@ namespace Bob
             {
                 grid[0][x] = bubbles[x];
             }
+        }
+
+        public int GetAround (Vector position, Vector[] result)
+        {
+            int count = 0;
+
+            if (GetFromPosition(position) != null)
+                result[count++] = position;
+
+            for (int i = 0; i < DirectionCount; i++)
+            {
+                var cPosition = position + seekDirections[i];
+                
+                var bubble = GetFromPosition(cPosition);
+                if (bubble == null)
+                {
+                    continue;
+                }
+
+                result[count++] = position;
+            }
+
+            return count;
         }
 
         public List<Vector> SeekForCombine(Vector mustContain)
@@ -95,7 +118,7 @@ namespace Bob
         {
             List<Vector> mixes = new List<Vector>();
 
-            for (int i = 0; i < dirCount; i++)
+            for (int i = 0; i < DirectionCount; i++)
             {
                 var cPosition = pivotPosition + seekDirections[i];
 
@@ -125,7 +148,7 @@ namespace Bob
         {
             List<Vector> final = new List<Vector>();
 
-            for (int i = 0; i < dirCount; i++)
+            for (int i = 0; i < DirectionCount; i++)
             {
                 List<Vector> points = new List<Vector>();
 
@@ -183,7 +206,7 @@ namespace Bob
 
         public bool FindClosePosition(Vector position, ref Vector result)
         {
-            for (int i = 0; i < dirCount; i++)
+            for (int i = 0; i < DirectionCount; i++)
             {
                 var pos = position + seekDirections[i];
                 if (IsPositionAvailable(pos))

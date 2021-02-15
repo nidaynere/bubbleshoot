@@ -20,17 +20,19 @@ namespace Bob
         public readonly ushort Id;
         public BubbleType Numberos;
 
-        public void IncreaseNumberos()
+        public bool IncreaseNumberos()
         {
             int currentNumberos = (int)Numberos;
             currentNumberos++;
             int max = (int)BubbleType.Max;
             if (max <= currentNumberos)
             {
-                return;
+                return false;
             }
 
             Numberos = (BubbleType)currentNumberos;
+
+            return true;
         }
 
         public Bubble(ushort _Id)

@@ -144,9 +144,10 @@ namespace Bob
             return bubble;
         }
 
-        private void AddScore (Bubble.BubbleType type)
+        private void AddScore (Bubble.BubbleType type, float multiplier =1)
         {
             userScore += (int)type + 1;
+            userScore = (int)Math.Round(userScore * multiplier);
             GameEvents.OnGameScoreUpdate?.Invoke(userScore);
         }
 
@@ -226,23 +227,54 @@ namespace Bob
                 {
                     OutputLog.AddLog("combine member: " + combines[i]);
                 }
-                
+
+                List<Vector> gonnaExplode = new List<Vector>();
                 for (int i = 0; i < length - 1; i++)
                 {
                     var first = map.GetFromPosition(combines[i]);
                     var next = map.GetFromPosition(combines[i + 1]);
 
                     //OutputLog.AddLog("combining: " + first.Id + " to " + next.Id);
-
-                    next.IncreaseNumberos();
-
                     AddScore(next.Numberos);
-
                     GameEvents.OnBubbleCombined?.Invoke(first.Id, next.Id);
+
+                    if (!next.IncreaseNumberos())
+                    { // max level reached. Explode
+                        gonnaExplode.Add(combines[i + 1]);
+                    }
 
                     /// remove first.
                     map.RemoveFromPosition(combines[i]);
                 }
+
+                ExplodeThisPoints(gonnaExplode);
+            }
+        }
+
+        /// <summary>
+        /// Explodes given points. Explosion size is the direction count of the map (8)  + 1 (the explosion origin)
+        /// </summary>
+        /// <param name="gonnaExplode"></param>
+        private void ExplodeThisPoints (List<Vector> gonnaExplode)
+        {
+            int count = gonnaExplode.Count;
+            Vector[] around = new Vector[BubbleGrid.DirectionCount + 1];
+
+            for (int i = 0; i < count; i++)
+            {
+                List<ushort> tIds = new List<ushort>();
+
+                int result = map.GetAround(gonnaExplode[i], around);
+                for (int e = 0; e < result; e++)
+                {
+                    var bubble = map.GetFromPosition(around[e]);
+                    tIds.Add (bubble.Id);
+
+                    AddScore(bubble.Numberos, 2); // add score, but double it.
+                    map.RemoveFromPosition(around[e]); // bubble is killed.
+                }
+
+                GameEvents.OnBubbleExploded?.Invoke(gonnaExplode[i].X, gonnaExplode[i].Y, tIds.ToArray());
             }
         }
     }
