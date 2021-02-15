@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4725101130597829726}
   - component: {fileID: 8954971355939936572}
   - component: {fileID: 7110771186995138255}
-  - component: {fileID: 1800359314029843355}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -80,19 +79,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!135 &1800359314029843355
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4047226084998337110}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6848410594936638879
 GameObject:
   m_ObjectHideFlags: 0
@@ -104,6 +90,7 @@ GameObject:
   - component: {fileID: 6521565177861330052}
   - component: {fileID: 2509065972349790957}
   - component: {fileID: 1970074575303029793}
+  - component: {fileID: 2197881685122329221}
   m_Layer: 0
   m_Name: GameBall
   m_TagString: Untagged
@@ -142,6 +129,9 @@ MonoBehaviour:
   ballColors: {fileID: 11400000, guid: f3dafdb0e2b656a4a97d3394f5196137, type: 2}
   meshRenderer: {fileID: 7110771186995138255}
   visual: {fileID: 4725101130597829726}
+  p_rigidbody: {fileID: 2197881685122329221}
+  p_collider: {fileID: 1970074575303029793}
+  p_flyForce: {x: 40, y: 90}
 --- !u!65 &1970074575303029793
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -155,3 +145,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.75, y: 0.75, z: 0.75}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &2197881685122329221
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6848410594936638879}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0

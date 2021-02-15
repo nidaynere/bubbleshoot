@@ -60,6 +60,19 @@ namespace Bob
             }
             else
             {
+                void unboundChecker ()
+                {
+                    // Remove unbounds if there is any.
+                    var unbounds = map.RemoveUnBounds();
+                    foreach (var e in unbounds)
+                    {
+                        GameEvents.OnBubbleIsNowFree?.Invoke(e);
+                    }
+                    //
+                }
+
+                unboundChecker();
+
                 // Check for end game.
                 Bubble[] bubbles = new Bubble[map.Size.X];
                 Vector[] positions = new Vector[map.Size.X];
@@ -71,7 +84,9 @@ namespace Bob
                     return;
                 }
                 
-                CreateRows(rowCountAtPerTurn, rowCrowdNess, false);   
+                CreateRows(rowCountAtPerTurn, rowCrowdNess, false);
+
+                unboundChecker();
             }
 
             if (activeBubble == null)
@@ -270,15 +285,20 @@ namespace Bob
                 for (int e = 0; e < result; e++)
                 {
                     var bubble = map.GetFromPosition(around[e]);
-                    tIds.Add (bubble.Id);
 
-                    AddScore(bubble.Numberos, 2); // add score, but double it.
-                    map.RemoveFromPosition(around[e]); // bubble is killed.
+                    if (bubble != null)
+                    {
+                        tIds.Add(bubble.Id);
+
+                        AddScore(bubble.Numberos, 10); // add score, x10 Times!!
+                        map.RemoveFromPosition(around[e]); // bubble is killed.
+                    }
                 }
 
                 GameEvents.OnBubbleExploded?.Invoke(gonnaExplode[i].X, gonnaExplode[i].Y, tIds.ToArray());
             }
         }
+
     }
 
 }

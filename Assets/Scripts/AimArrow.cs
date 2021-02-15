@@ -3,11 +3,13 @@ using System.Collections.Generic;
 
 public class AimArrow : MonoBehaviour
 {
+#pragma warning disable CS0649
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private Animator aimAnimator;
     [SerializeField] private Transform focusPoint;
 
     [SerializeField] private List<Collider> walls;
+#pragma warning restore CS0649
 
     public int SetDirection (Vector2 direction, int maxCrosses, Vector3[] positions)
     {

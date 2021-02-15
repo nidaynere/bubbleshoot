@@ -289,5 +289,59 @@ namespace Bob
 
             return counter;
         }
+
+
+        /// <summary>
+        /// Returns the list of the unbound vectors.
+        /// Unbound means, at least 1 non-empty grid point should be at the upper directions.
+        /// X X B   X X X   B B X
+        ///   O       O       O
+        /// Bound  UnBound  Bound
+        /// </summary>
+        /// <returns></returns>
+        public List<ushort> RemoveUnBounds ()
+        {
+            OutputLog.AddLog("Remove unbounds...");
+
+            List<ushort> unbounds = new List<ushort>();
+
+            int sizeX = Size.X;
+            int sizeY = Size.Y;
+
+            for (int y = 0; y < sizeY; y++)
+            {
+                for (int x = 0; x < sizeX; x++)
+                {
+                    Vector position = new Vector(x, y);
+
+                    var point = GetFromPosition(position);
+                    if (point != null)
+                    {
+                        bool found = false;
+
+                        // check for point.
+                        for (int i = 0; i < 3; i++)
+                        {
+                            var cPosition = position + seekDirections[DirectionCount - i - 1];
+
+                            if (cPosition.Y < 0 || GetFromPosition(cPosition) != null)
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found)
+                        {
+                            // gone.
+                            unbounds.Add(point.Id);
+                            RemoveFromPosition(position);
+                        }
+                    }
+                }
+            }
+
+            return unbounds;
+        }
     }
 }

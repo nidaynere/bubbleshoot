@@ -10,6 +10,7 @@ public class Shooter : MonoBehaviour
 
     #endregion
 
+#pragma warning disable CS0649
     #region serialized variables
     [SerializeField] private AimArrow aimArrow;
     /// <summary>
@@ -18,6 +19,7 @@ public class Shooter : MonoBehaviour
     [SerializeField] private Transform focusPoint;
     [SerializeField] private GamePlayEvents inputEvents;
     #endregion
+#pragma warning restore CS0649
 
     const int maxCrosses = 5;
     private Vector3[] positions = new Vector3[maxCrosses + 2]; // 2 means start & end position

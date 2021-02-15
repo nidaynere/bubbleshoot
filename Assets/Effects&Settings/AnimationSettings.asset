@@ -63,4 +63,4 @@ MonoBehaviour:
   BubbleThrowSpeed: 25
   PositionUpdateSpeed: 5
   CombineAnimationDelay: 0.05
-  ScaleUpdateSpeed: 0.8
+  ScaleUpdateSpeed: 7

@@ -4,23 +4,33 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
+#pragma warning disable CS0649
+
     [SerializeField] private EffectPool effectPool;
     [SerializeField] private Transform holder;
+    [SerializeField] private Renderer gridRenderer;
     [SerializeField] private GameBall gameBall;
     [SerializeField] private int poolSize;
     [SerializeField] private Shooter shooter;
-    [SerializeField] private int width, height;
     [SerializeField] private GamePlayEvents gamePlayEvents;
     [SerializeField] private AnimationSettings animationSettings;
     [SerializeField] private BubbleGameSettings gameSettings;
     [SerializeField] private Transform activeBallPoint, nextBallPoint;
     [SerializeField] private Transform wallXStart, wallXEnd, wallYStart, wallYEnd;
+    [SerializeField] private Transform gridPointer;
+
+#pragma warning restore CS0649
 
     private GameBall activeBall, nextBall;
 
     private Dictionary<ushort, GameBall> spawneds = new Dictionary<ushort, GameBall>();
 
     private Pool ballPool;
+
+    private BubbleGame currentSession;
+
+    private AnimationQuery animationQuery;
+    /*
 
 #if UNITY_EDITOR
     private void OnGUI()
@@ -43,28 +53,92 @@ public class GameManager : MonoBehaviour
         }
     }
 #endif
-
-
-    public void Start()
+    */
+    private void Start()
     {
         ballPool = new Pool(holder, gameBall, poolSize);
         effectPool.Create(holder);
 
         shooter.OnShoot += UserShoot;
         shooter.OnAim += UserAim;
+
+        gamePlayEvents.StartGame = CreateGame;
+        gamePlayEvents.ClearGame = Clear;
     }
 
-    [SerializeField] private Transform debugger;
+    private void CreateGame()
+    {
+        Clear();
 
-    private void UserAim (Vector3[] positions)
+        animationQuery = new AnimationQuery(animationSettings);
+        currentSession = new BubbleGame(gameSettings.GridSizeX,
+            gameSettings.GridSizeY,
+            gameSettings.StartingRowCount,
+            gameSettings.RowsAtPerTurn,
+            gameSettings.RowCrowdness);
+
+        gridRenderer.transform.localScale = new Vector3(gameSettings.GridSizeX, gameSettings.GridSizeY);
+        gridRenderer.material.SetVector("_Tiling", gridRenderer.transform.localScale);
+
+        // Register outputs to the game.
+        currentSession.GameEvents.OnActiveBallCreated += ActiveBallCreated;
+        currentSession.GameEvents.OnBubbleCombined += BubbleCombined;
+        currentSession.GameEvents.OnBubbleMixed += BubbleMixed;
+        currentSession.GameEvents.OnBubbleIsNowFree += BubbleIsNowFree;
+        currentSession.GameEvents.OnBubblePositionUpdate += BubblePositionUpdate;
+        currentSession.GameEvents.OnBubblePlacement += BubblePlacement;
+        currentSession.GameEvents.OnBubbleSpawned += BubbleSpawned;
+        currentSession.GameEvents.OnBubbleValueUpdate += BubbleValueUpdate;
+        currentSession.GameEvents.OnNextBallSpawned += NextBallSpawned;
+        currentSession.GameEvents.OnNextBallBecomeActive += NextBallBecomeActive;
+        currentSession.GameEvents.OnReadyForVisualization += ReadyForVisualization;
+        currentSession.GameEvents.OnBubbleExploded += BubbleExploded;
+
+        // Bubble<-->GamePlayEvents
+        currentSession.GameEvents.OnGameScoreUpdate += (int value) => { gamePlayEvents.OnScoreUpdate?.Invoke(value); };
+        currentSession.GameEvents.OnGameFinished += (int value) => {
+            Debug.Log("OnGameFinished()");
+            gamePlayEvents.OnGameplayStatusChange?.Invoke(false);
+            gamePlayEvents.OnGameOver?.Invoke(value); 
+        };
+        //
+
+        gamePlayEvents.OnGameStarted?.Invoke();
+
+        currentSession.NextTurn();
+
+        gamePlayEvents.OnGameplayStatusChange?.Invoke(true);
+    }
+
+    private void Clear()
+    {
+        if (currentSession != null)
+        { /// Clear old game.
+            StopAllCoroutines();
+
+            foreach (var obj in spawneds)
+                obj.Value.gameObject.SetActive(false);
+
+            spawneds.Clear();
+
+            currentSession.Dispose();
+
+            currentSession = null;
+        }
+    }
+
+
+    private void UserAim(Vector3[] positions)
     {
         int length = positions.Length;
         if (length == 0)
             return;
 
+        gridPointer.gameObject.SetActive(true);
+
         if (FixEndPoint(positions, length, out int x, out int y))
         {
-            debugger.localPosition = new Vector3(x, -y);
+            gridPointer.localPosition = new Vector3(x, -y);
         }
     }
 
@@ -76,7 +150,7 @@ public class GameManager : MonoBehaviour
     /// <param name="X"></param>
     /// <param name="Y"></param>
     /// <returns></returns>
-    private bool FixEndPoint (Vector3[] positions, int length, out int X, out int Y)
+    private bool FixEndPoint(Vector3[] positions, int length, out int X, out int Y)
     {
         var endPosition = positions[length - 1];
         var direciton = (endPosition - positions[length - 2]).normalized;
@@ -107,6 +181,8 @@ public class GameManager : MonoBehaviour
 
     private void UserShoot(Vector3[] positions)
     {
+        gridPointer.gameObject.SetActive(false);
+
         int length = positions.Length;
         if (length == 0)
             return;
@@ -144,67 +220,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private BubbleGame currentSession;
-
-    private AnimationQuery animationQuery;
-
-    public void CreateGame()
-    {
-        Clear();
-
-        animationQuery = new AnimationQuery(animationSettings);
-        currentSession = new BubbleGame(gameSettings.GridSizeX,
-            gameSettings.GridSizeY,
-            gameSettings.StartingRowCount,
-            gameSettings.RowsAtPerTurn,
-            gameSettings.RowCrowdness);
-
-        // Register outputs to the game.
-        currentSession.GameEvents.OnActiveBallCreated += ActiveBallCreated;
-        currentSession.GameEvents.OnBubbleCombined += BubbleCombined;
-        currentSession.GameEvents.OnBubbleMixed += BubbleMixed;
-        currentSession.GameEvents.OnBubbleIsNowFree += BubbleIsNowFree;
-        currentSession.GameEvents.OnBubblePositionUpdate += BubblePositionUpdate;
-        currentSession.GameEvents.OnBubblePlacement += BubblePlacement;
-        currentSession.GameEvents.OnBubbleSpawned += BubbleSpawned;
-        currentSession.GameEvents.OnBubbleValueUpdate += BubbleValueUpdate;
-        currentSession.GameEvents.OnNextBallSpawned += NextBallSpawned;
-        currentSession.GameEvents.OnNextBallBecomeActive += NextBallBecomeActive;
-        currentSession.GameEvents.OnReadyForVisualization += ReadyForVisualization;
-        currentSession.GameEvents.OnBubbleExploded += BubbleExploded;
-
-        // Bubble<-->GamePlayEvents
-        currentSession.GameEvents.OnGameScoreUpdate += (int value) => { gamePlayEvents.OnScoreUpdate?.Invoke(value); };
-        currentSession.GameEvents.OnGameFinished += (int value) => {
-            Debug.Log("OnGameFinished()");
-            gamePlayEvents.OnGameplayStatusChange?.Invoke(false);
-            gamePlayEvents.OnGameOver?.Invoke(value); 
-        };
-        //
-
-        gamePlayEvents.OnGameStarted?.Invoke();
-
-        currentSession.NextTurn();
-
-        gamePlayEvents.OnGameplayStatusChange?.Invoke(true);
-    }
-
-    public void Clear()
-    {
-        if (currentSession != null)
-        { /// Clear old game.
-            StopAllCoroutines();
-
-            foreach (var obj in spawneds)
-                obj.Value.gameObject.SetActive(false);
-
-            spawneds.Clear();
-
-            currentSession.Dispose();
-
-            currentSession = null;
-        }
-    }
 
     private void ActiveBallCreated (Bubble bubble)
     {
@@ -221,13 +236,12 @@ public class GameManager : MonoBehaviour
     private GameBall SpawnBall(Bubble bubble, int X, int Y, float scale = 1)
     {
         var gameBall = ballPool.Get();
-
+        gameBall.SetRigidbody(false);
+        gameBall.SetCollider(true);
         gameBall.SetPosition(X, Y);
-
+        gameBall.gameObject.SetActive(true);
         gameBall.transform.localScale = Vector3.one * scale;
         gameBall.bubble = bubble;
-
-        gameBall.gameObject.SetActive(true);
 
         spawneds.Add(bubble.Id, gameBall);
 
@@ -277,12 +291,30 @@ public class GameManager : MonoBehaviour
     {
         // todo fly away animation
         Debug.Log("Bubble is now free, fly away => " + Id);
+
+        if (spawneds.ContainsKey(Id))
+        {
+            spawneds[Id].FlyAway();
+            spawneds.Remove(Id);
+        }
     }
 
     private void BubbleExploded (int X, int Y, ushort[] Ids)
     {
         // add effect this position.
         // shake the screen.
+
+        effectPool.Play("BubbleExplode", new Vector3(X, -Y));
+
+        int length = Ids.Length;
+        for (int i = 0; i < length; i++)
+        {
+            if (spawneds.ContainsKey(Ids[i]))
+            {
+                spawneds[Ids[i]].Kill ();
+                spawneds.Remove(Ids[i]);
+            }
+        }
 
         Debug.Log("Bubble exploded at => " + X +  ", " + Y);
     }
@@ -321,13 +353,15 @@ public class GameManager : MonoBehaviour
         Debug.Log("Next ball spawned => " + bubble.Id + " " + bubble.Numberos);
         var pos = nextBallPoint.localPosition;
         nextBall = SpawnBall (bubble, pos, 0.5f);
+        nextBall.SetCollider(false);
     }
 
     private void NextBallBecomeActive ()
     {
         activeBall = nextBall;
         activeBall.Move(activeBallPoint.position, animationSettings.PositionUpdateSpeed);
-        activeBall.Scale(Vector3.one * 1);
+        activeBall.Scale(Vector3.one * 1, animationSettings.ScaleUpdateSpeed);
+        activeBall.SetCollider(true);
 
         Debug.Log("Next ball become active!");
     }

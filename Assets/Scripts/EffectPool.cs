@@ -21,7 +21,7 @@ public class EffectPool : ScriptableObject
 
             public void Play(Vector3 position)
             {
-                main.position = position;
+                main.localPosition = position;
 
                 foreach (var audio in audioPlayers)
                     audio.Play();

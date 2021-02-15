@@ -10,4 +10,5 @@ public class AnimationSettings : ScriptableObject
     public float PositionUpdateSpeed = 1f;
     public float CombineAnimationDelay = 0.2f;
     public float ScaleUpdateSpeed = 1f;
+    public float FlyAwayScaleSpeed = 0.2f;
 }

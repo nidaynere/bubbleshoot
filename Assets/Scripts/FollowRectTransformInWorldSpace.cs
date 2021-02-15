@@ -6,8 +6,11 @@ using Unity.Entities;
 [RequireComponent (typeof (GameObjectEntity))]
 public class FollowRectTransformInWorldSpace : MonoBehaviour
 {
+#pragma warning disable CS0649
     [SerializeField] private RectTransform targetToFollow;
     [SerializeField] private float zDistance = 10;
+
+#pragma warning restore CS0649
     public class FollowTargetEntity : ComponentSystem
     {
         protected override void OnUpdate()

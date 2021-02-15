@@ -4,31 +4,24 @@ using System.Collections;
 
 public class Transition : MonoBehaviour
 {
+#pragma warning disable CS0649
     [SerializeField] protected AnimationSettings animationSettings;
-
-    private Coroutine currentTransition;
+#pragma warning restore CS0649
 
     public void Move(Vector3 target, float speed, Action onCompleted = null)
     {
-        if (currentTransition != null)
-            StopCoroutine(currentTransition);
-
         StartCoroutine(startTransition(target, speed, onCompleted, true));
     }
 
     public void Move(Vector3[] target, float speed, Action onCompleted = null)
     {
         Debug.Log("Move to target array.");
-
-        if (currentTransition != null)
-            StopCoroutine(currentTransition);
-
         StartCoroutine(startTransition(target, speed, onCompleted));
     }
 
-    public void Scale (Vector3 target)
+    public void Scale (Vector3 target, float speed, Action onCompleted = null)
     {
-        StartCoroutine(startScaling(target));
+        StartCoroutine(startScaling(target, speed, onCompleted));
     }
 
     private IEnumerator startTransition(Vector3[] target, float speed, Action onCompleted)
@@ -87,11 +80,11 @@ public class Transition : MonoBehaviour
         }
     }
 
-    private IEnumerator startScaling (Vector3 target)
+    private IEnumerator startScaling (Vector3 target, float speed, Action onCompleted)
     {
         Vector3 startScale = transform.localScale;
         float progress = 0;
-        float progressSpeed = animationSettings.ScaleUpdateSpeed / (Vector3.Distance(target, startScale) + 0.001f);
+        float progressSpeed = speed / (Vector3.Distance(target, startScale) + 0.001f);
 
         while (true)
         {
@@ -102,6 +95,7 @@ public class Transition : MonoBehaviour
 
             if (progress == 1)
             {
+                onCompleted?.Invoke();
                 break;
             }
             yield return new WaitForEndOfFrame();

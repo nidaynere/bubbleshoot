@@ -4,9 +4,17 @@ using System;
 
 public class GameBall : Transition
 {
+#pragma warning disable CS0649
     [SerializeField] private BallColors ballColors;
     [SerializeField] private MeshRenderer meshRenderer;
     [SerializeField] private Transform visual;
+
+    #region physics
+    [SerializeField] private Rigidbody p_rigidbody;
+    [SerializeField] private Collider p_collider;
+    [SerializeField] private Vector2 p_flyForce;
+    #endregion
+#pragma warning restore CS0649
 
     private int posX, posY;
 
@@ -16,7 +24,7 @@ public class GameBall : Transition
         posY = Y;
 
         transform.localPosition = new Vector3(X, -Y);
-        visual.localPosition = new Vector3 (0, X % 2 * 0.2f);
+        visual.localPosition = new Vector3 (0, X % 2 == 1 ? 0.1f : -0.1f);
     }
 
     public void SetTransition (int X, int Y, Action onCompleted = null)
@@ -51,13 +59,37 @@ public class GameBall : Transition
 
     public void Kill()
     {
-        //TODO anim.
-        gameObject.SetActive(false);
+        Scale(Vector3.zero, animationSettings.ScaleUpdateSpeed,  () => { gameObject.SetActive(false); });
     }
 
     public void Upgrade()
     {
         meshRenderer.sharedMaterial = ballColors.Materials[(int)_bubble.Numberos];
-        // TODO animation.
+
+        var scale = transform.localScale;
+        Scale(scale * 1.5f, animationSettings.ScaleUpdateSpeed, 
+            () => { Scale(scale, animationSettings.ScaleUpdateSpeed); });
+    }
+
+    public void SetCollider(bool value)
+    {
+        p_collider.enabled = value;
+    }
+
+    public void SetRigidbody(bool value)
+    {
+        p_rigidbody.isKinematic = !value;
+    }
+
+    public void FlyAway ()
+    {
+        SetCollider(false);
+        SetRigidbody(true);
+
+        p_rigidbody.AddForce(new Vector3(
+            UnityEngine.Random.Range(-p_flyForce.x, p_flyForce.x),
+            p_flyForce.y));
+
+        Scale(Vector3.zero, animationSettings.FlyAwayScaleSpeed, () => { gameObject.SetActive(false); });
     }
 }
