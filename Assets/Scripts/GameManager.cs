@@ -284,17 +284,19 @@ public class GameManager : MonoBehaviour
         // add effect this position.
         // shake the screen.
 
-        effectPool.Play("BubbleExplode", new Vector3(X, -Y));
+        animationQuery.AddToQuery(new AnimationQuery.ExplodeAction( ()=> {
+            effectPool.Play("BubbleExplode", new Vector3(X, -Y));
 
-        int length = Ids.Length;
-        for (int i = 0; i < length; i++)
-        {
-            if (spawneds.ContainsKey(Ids[i]))
+            int length = Ids.Length;
+            for (int i = 0; i < length; i++)
             {
-                spawneds[Ids[i]].Kill ();
-                spawneds.Remove(Ids[i]);
+                if (spawneds.ContainsKey(Ids[i]))
+                {
+                    spawneds[Ids[i]].Kill();
+                    spawneds.Remove(Ids[i]);
+                }
             }
-        }
+        }));
 
         Debug.Log("Bubble exploded at => " + X +  ", " + Y);
     }

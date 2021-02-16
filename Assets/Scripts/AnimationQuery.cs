@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
 
-[System.Serializable]
 public struct AnimationQuery
 {
     private AnimationSettings gameSettings;
@@ -58,23 +57,28 @@ public struct AnimationQuery
         }
     }
 
-    [System.Serializable]
+
     public class BaseAction
     {
         protected GameBall ballFrom, ballTo;
 
-        public BaseAction(GameBall _ballFrom, GameBall _ballTo)
+        protected Action onTriggered;
+
+        public BaseAction(GameBall ballFrom, GameBall ballTo, Action onTriggered)
         {
-            ballFrom = _ballFrom;
-            ballTo = _ballTo;
+            this.ballFrom = ballFrom;
+            this.ballTo = ballTo;
+            this.onTriggered = onTriggered;
         }
 
-        public virtual void Trigger(AnimationSettings gameSettings, Action onCompleted) { }
+        public virtual void Trigger(AnimationSettings gameSettings, Action onCompleted) {
+            onTriggered?.Invoke();
+        }
     }
-    [System.Serializable]
+
     public class CombineAction : BaseAction
     {
-        public CombineAction (GameBall _ballFrom, GameBall _ballTo) : base (_ballFrom, _ballTo)
+        public CombineAction (GameBall _ballFrom, GameBall _ballTo) : base (_ballFrom, _ballTo, null)
         {
 
         }
@@ -91,10 +95,10 @@ public struct AnimationQuery
             });
         }
     }
-    [System.Serializable]
+
     public class MixAction : BaseAction
     {
-        public MixAction(GameBall _ballFrom, GameBall _ballTo) : base(_ballFrom, _ballTo)
+        public MixAction(GameBall _ballFrom, GameBall _ballTo) : base(_ballFrom, _ballTo, null)
         {
 
         }
@@ -109,11 +113,11 @@ public struct AnimationQuery
             });
         }
     }
-    [System.Serializable]
+
     public class PlacementAction : BaseAction
     {
         private int X, Y;
-        public PlacementAction(GameBall _ballFrom, int _X, int _Y) : base(_ballFrom, null)
+        public PlacementAction(GameBall _ballFrom, int _X, int _Y) : base(_ballFrom, null, null)
         {
             X = _X;
             Y = _Y;
@@ -125,6 +129,20 @@ public struct AnimationQuery
             var _to = ballTo;
 
             ballFrom.SetTransition(X, Y, () => { onCompleted?.Invoke(); });
+        }
+    }
+
+    public class ExplodeAction : BaseAction
+    {
+        public ExplodeAction(Action onTriggered) : base(null, null, onTriggered)
+        {
+
+        }
+
+        public override void Trigger(AnimationSettings gameSettings, Action onCompleted)
+        {
+            base.Trigger(gameSettings, onCompleted);
+            onCompleted?.Invoke();
         }
     }
 }

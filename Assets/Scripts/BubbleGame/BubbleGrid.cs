@@ -4,10 +4,6 @@ namespace Bob
 {
     public struct BubbleGrid
     {
-#if UNITY_EDITOR
-        public Bubble[][] GetGrid => grid;
-#endif
-
         public const int DirectionCount = 8;
 
         private Bubble[][] grid;
@@ -221,21 +217,17 @@ namespace Bob
 
         public bool IsPositionAvailable (Vector position)
         {
-            OutputLog.AddLog("Checking " + position.ToString() + " if its available.");
             if (position.Y < 0 || position.Y >= Size.Y)
             {
-                OutputLog.AddLog("Y is out of map");
                 return false;
             }
 
             if (position.X < 0 || position.X >= Size.X)
             {
-                OutputLog.AddLog("X is out of map");
                 return false;
             }
 
             var result = GetFromPosition(position) == null;
-            OutputLog.AddLog("result => " + result);
             return result;
         }
 

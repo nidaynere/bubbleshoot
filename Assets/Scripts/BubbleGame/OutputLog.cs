@@ -6,12 +6,12 @@ namespace Bob
     {
         public static void AddLog(string log)
         {
-            UnityEngine.Debug.Log(log);
+            
         }
 
         public static void AddError(string log)
         {
-            UnityEngine.Debug.LogError(log);
+            
         }
     }
 }
